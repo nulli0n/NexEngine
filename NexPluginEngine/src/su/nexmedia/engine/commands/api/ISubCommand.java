@@ -20,7 +20,7 @@ public abstract class ISubCommand<P extends NexPlugin<P>> extends IAbstractComma
 	}
 	
 	public ISubCommand(@NotNull P plugin, @NotNull List<String> aliases, @Nullable String permission) {
-		this(plugin, aliases.toArray(new String[aliases.size()]), null);
+		this(plugin, aliases.toArray(new String[aliases.size()]), permission);
 	}
 	
 	public ISubCommand(@NotNull P plugin, @NotNull String[] aliases, @Nullable String permission) {

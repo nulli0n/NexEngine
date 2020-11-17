@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -16,6 +15,7 @@ import org.mcmonkey.sentinel.SentinelTrait;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import su.nexmedia.engine.NexEngine;
+import su.nexmedia.engine.hooks.external.MythicMobsHK;
 import su.nexmedia.engine.hooks.external.VaultHK;
 import su.nexmedia.engine.hooks.external.WorldGuardHK;
 import su.nexmedia.engine.utils.constants.JStrings;
@@ -40,24 +40,6 @@ public class Hooks {
 	public static Set<String> getPermissionGroups(@NotNull Player p) {
 		VaultHK vault = ENGINE.getVault();
 		return vault != null ? vault.getPlayerGroups(p) : Collections.emptySet();
-	}
-	
-	public static double getValueByGroupD(@NotNull Player p, @NotNull Map<String, Double> map) {
-		Set<String> playerGroups = getPermissionGroups(p);
-		Set<String> matched = map.keySet().stream()
-				.map(String::toLowerCase)
-				.filter(group -> playerGroups.contains(group))
-				.collect(Collectors.toSet());
-		
-		Double best = null;
-		for (String matchedGroup : matched) {
-			Double inMap = map.get(matchedGroup);
-			if (best == null || (inMap != null && best.doubleValue() < inMap.doubleValue())) {
-				best = inMap;
-			}
-		}
-		
-		return best != null ? best.doubleValue() : 0D;
 	}
 	
 	public static long getGroupValueLong(@NotNull Player player, @NotNull Map<String, Long> map, boolean isNegaBetter) {
@@ -137,6 +119,11 @@ public class Hooks {
 	
 	public static boolean isNPC(@NotNull Entity e) {
 		return hasPlugin(CITIZENS) ? CitizensAPI.getNPCRegistry().isNPC(e) : false;
+	}
+	
+	public static boolean isMythic(@NotNull Entity e) {
+		MythicMobsHK mobsHK = ENGINE.getMythicMobs();
+		return mobsHK == null ? false : mobsHK.isMythicMob(e);
 	}
 	
 	public static boolean hasPlugin(@NotNull String plugin) {

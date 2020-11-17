@@ -69,12 +69,12 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 				cacheFixCount++;
 				continue;
 			}
-			this.plugin.getData().saveUser(userOn);
+			this.save(userOn);
 		}
 		
 		int on = this.activeUsers.size();
 		int off = this.toSave.size();
-		this.toSave.forEach(userOff -> this.plugin.getData().saveUser(userOff));
+		this.toSave.forEach(userOff -> this.save(userOff));
 		this.toSave.clear();
 		
 		plugin.info("Auto-save: Saved " + on + " online users | " + off + " offline users.");
