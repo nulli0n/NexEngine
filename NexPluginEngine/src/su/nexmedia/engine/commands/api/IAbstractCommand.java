@@ -26,7 +26,7 @@ public abstract class IAbstractCommand<P extends NexPlugin<P>> {
 	}
 	
 	public IAbstractCommand(@NotNull P plugin, @NotNull List<String> aliases, @Nullable String permission) {
-		this(plugin, aliases.toArray(new String[aliases.size()]), null);
+		this(plugin, aliases.toArray(new String[aliases.size()]), permission);
 	}
 	
 	public IAbstractCommand(@NotNull P plugin, @NotNull String[] aliases, @Nullable String permission) {
