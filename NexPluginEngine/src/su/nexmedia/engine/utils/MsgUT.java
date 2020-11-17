@@ -67,13 +67,17 @@ public class MsgUT {
 		}
 		catch (IllegalArgumentException ex) {}
     }
+    
+    public static boolean isJSON(@NotNull String str) {
+    	return str.contains("json:");
+    }
 
 	public static void sendWithJSON(@NotNull CommandSender p, @NotNull String orig) {
-		if (!orig.contains("json:")) {
+		orig = StringUT.color(orig);
+		if (!isJSON(orig)) {
 			p.sendMessage(orig);
 			return;
 		}
-		orig = StringUT.color(orig);
 		
 		Matcher mFull = PATTERN_JSON_FULL.matcher(orig);
 		

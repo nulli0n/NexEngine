@@ -10,7 +10,7 @@ import su.nexmedia.engine.config.api.JYML;
 public abstract class LoadableItem {
 
 	public final NexPlugin<?> plugin;
-	protected final String id;
+	protected String id;
 	protected final String path;
 	protected final JYML cfg;
 	

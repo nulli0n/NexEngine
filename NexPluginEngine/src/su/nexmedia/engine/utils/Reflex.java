@@ -1,5 +1,6 @@
 package su.nexmedia.engine.utils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -28,6 +29,28 @@ public class Reflex {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	@Nullable
+	public static Constructor<?> getConstructor(@NotNull Class<?> clazz, Class<?>... types) {
+		try {
+			return clazz.getConstructor(types);
+		} 
+		catch (ReflectiveOperationException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	@Nullable
+	public static Object invokeConstructor(@NotNull Constructor<?> con, Object... obj) {
+		try {
+			return con.newInstance(obj);
+		} 
+		catch (ReflectiveOperationException e) {
+			e.printStackTrace();
+		}
+		return obj;
 	}
 	
 	@Nullable

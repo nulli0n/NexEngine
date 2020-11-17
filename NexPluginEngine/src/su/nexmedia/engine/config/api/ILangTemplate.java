@@ -273,7 +273,7 @@ public abstract class ILangTemplate {
 	        else {
 	        	msgLoad = cfg.getString(path, "");
 	        }
-        	jmsg.setMsg(StringUT.color(msgLoad));
+        	jmsg.setMsg(msgLoad);
     	}
     	this.config.saveChanges();
     }
@@ -284,10 +284,14 @@ public abstract class ILangTemplate {
     	private String msgColor;
     	private String path;
     	private OutputType out = OutputType.CHAT;
+    	private boolean isJson;
     	
     	public JLangMsg(@NotNull String msg) {
     		this.msgDefault = msg;
-    		this.msgColor = StringUT.color(msg);
+    		this.msgColor = msg;
+    		if (!(this.isJson = MsgUT.isJSON(msg))) {
+    			this.msgColor = StringUT.color(msg);
+    		}
     	}
     	
     	public JLangMsg(@NotNull JLangMsg from) {
@@ -295,6 +299,7 @@ public abstract class ILangTemplate {
     		this.msgColor = from.getMsg();
     		this.path = from.getPath();
     		this.out = from.out;
+    		this.isJson = from.isJson;
     	}
     	
     	public void setPath(@NotNull String path) {
@@ -312,10 +317,11 @@ public abstract class ILangTemplate {
     	 * @param msg New message
     	 */
     	public void setMsg(@NotNull String msg) {
-    		msg = StringUT.color(msg);
-    		
     		this.out = OutputType.getType(msg);
     		this.msgColor = OutputType.clearPrefix(msg);
+    		if (!(this.isJson = MsgUT.isJSON(msg))) {
+    			msg = StringUT.color(msg);
+    		}
     	}
     	
     	@NotNull
@@ -327,6 +333,10 @@ public abstract class ILangTemplate {
     	public String getMsg() {
     		return this.msgColor;
     	}
+    	
+    	public boolean isJson() {
+			return this.isJson;
+		}
     	
     	@SuppressWarnings("unchecked")
 		@NotNull
@@ -344,7 +354,7 @@ public abstract class ILangTemplate {
 			if (this.isEmpty()) return this;
 			
     		JLangMsg msgCopy = new JLangMsg(this);
-    		msgCopy.msgColor = replacer.apply(msgCopy.getMsg());
+    		msgCopy.msgColor = StringUT.color(replacer.apply(msgCopy.getMsg()));
     		return msgCopy;
     	}
     	
