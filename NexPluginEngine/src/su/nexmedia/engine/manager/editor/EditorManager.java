@@ -105,7 +105,8 @@ public class EditorManager {
 		if (stay == 999) stay = 100000;
 		
 		ENGINE.lang().Core_Editor_Display_Edit_Format
-			.replace("%title%", title).replace("%message%", sub)
+			.replace("%title%", title)
+			.replace("%message%", sub)
 			.title(player, 10, stay, 20);
 	}
 

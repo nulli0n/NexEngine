@@ -288,13 +288,10 @@ public abstract class ILangTemplate {
     	
     	public JLangMsg(@NotNull String msg) {
     		this.msgDefault = msg;
-    		this.msgColor = msg;
-    		if (!(this.isJson = MsgUT.isJSON(msg))) {
-    			this.msgColor = StringUT.color(msg);
-    		}
+    		this.setMsg(msg);
     	}
     	
-    	public JLangMsg(@NotNull JLangMsg from) {
+    	JLangMsg(@NotNull JLangMsg from) {
     		this.msgDefault = from.getDefaultMsg();
     		this.msgColor = from.getMsg();
     		this.path = from.getPath();
@@ -302,7 +299,7 @@ public abstract class ILangTemplate {
     		this.isJson = from.isJson;
     	}
     	
-    	public void setPath(@NotNull String path) {
+    	private void setPath(@NotNull String path) {
     		this.path = path.replace("_", ".");
     	}
     	
@@ -313,14 +310,14 @@ public abstract class ILangTemplate {
     	
     	/**
     	 * Replaces the colored non-default message value as well as output type.
-    	 * 
     	 * @param msg New message
     	 */
-    	public void setMsg(@NotNull String msg) {
+    	private void setMsg(@NotNull String msg) {
     		this.out = OutputType.getType(msg);
+    		this.isJson = MsgUT.isJSON(msg) && this.out == OutputType.CHAT;
     		this.msgColor = OutputType.clearPrefix(msg);
-    		if (!(this.isJson = MsgUT.isJSON(msg))) {
-    			msg = StringUT.color(msg);
+    		if (!this.isJson()) {
+    			this.msgColor = StringUT.color(this.msgColor);
     		}
     	}
     	
@@ -334,7 +331,7 @@ public abstract class ILangTemplate {
     		return this.msgColor;
     	}
     	
-    	public boolean isJson() {
+    	public final boolean isJson() {
 			return this.isJson;
 		}
     	
@@ -344,31 +341,28 @@ public abstract class ILangTemplate {
     		if (this.isEmpty()) return this;
     		if (replacer instanceof List) return this.replace(var, (List<Object>) replacer);
     		
-    		JLangMsg msgCopy = new JLangMsg(this);
-    		msgCopy.msgColor = msgCopy.getMsg().replace(var, StringUT.color(String.valueOf(replacer)));
-    		return msgCopy;
+    		return this.replace(str -> str.replace(var, String.valueOf(replacer)));
     	}
     	
+		@NotNull
+		public JLangMsg replace(@NotNull String var, @NotNull List<Object> replacer) {
+			if (this.isEmpty()) return this;
+			
+			StringBuilder builder = new StringBuilder();
+			replacer.forEach(rep -> {
+				if (builder.length() > 0) builder.append("\\n");
+				builder.append(rep.toString());
+			});
+			
+			return this.replace(str -> str.replace(var, builder.toString()));
+		}
+
 		@NotNull
     	public JLangMsg replace(@NotNull UnaryOperator<String> replacer) {
 			if (this.isEmpty()) return this;
 			
     		JLangMsg msgCopy = new JLangMsg(this);
     		msgCopy.msgColor = StringUT.color(replacer.apply(msgCopy.getMsg()));
-    		return msgCopy;
-    	}
-    	
-    	@NotNull
-    	public JLangMsg replace(@NotNull String var, @NotNull List<Object> replacer) {
-    		if (this.isEmpty()) return this;
-    		
-    		JLangMsg msgCopy = new JLangMsg(this);
-    		StringBuilder builder = new StringBuilder();
-    		replacer.forEach(rep -> {
-    			if (builder.length() > 0) builder.append("\\n");
-    			builder.append(rep.toString());
-    		});
-    		msgCopy.msgColor = msgCopy.getMsg().replace(var, StringUT.color(builder.toString()));
     		return msgCopy;
     	}
     	

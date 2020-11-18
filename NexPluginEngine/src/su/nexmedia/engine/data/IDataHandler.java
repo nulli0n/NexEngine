@@ -296,6 +296,24 @@ public abstract class IDataHandler<P extends NexPlugin<P>, U extends IAbstractUs
 		
 		this.execute(sql.toString());
 	}
+	
+	protected void deleteData(
+			@NotNull String table,  
+			@NotNull Map<String, String> whereMap) {
+		
+		StringBuilder sql = new StringBuilder("DELETE FROM " + table + " WHERE ");
+
+		StringBuilder wheres = new StringBuilder();
+		whereMap.forEach((key, value) -> {
+			if (wheres.length() > 0) {
+				wheres.append(" AND ");
+			}
+			wheres.append("`" + key + "` = '" + value + "'");
+		});
+		sql.append(wheres.toString());
+		
+		this.execute(sql.toString());
+	}
 
 	@Nullable
 	protected <T> T getData(@NotNull String table, @NotNull Map<String, String> whereMap, @NotNull Function<ResultSet, T> fn) {
@@ -307,7 +325,7 @@ public abstract class IDataHandler<P extends NexPlugin<P>, U extends IAbstractUs
 	protected <T> List<@NotNull T> getDatas(
 			@NotNull String table, 
 			@NotNull Map<String, String> whereMap, 
-			@NotNull Function<ResultSet, T> fn,
+			@NotNull Function<ResultSet, T> dataFunction,
 			int amount) {
 		
 		StringBuilder sql = new StringBuilder("SELECT * FROM " + table);
@@ -333,7 +351,7 @@ public abstract class IDataHandler<P extends NexPlugin<P>, U extends IAbstractUs
 	    		
 	    		ResultSet rs = ps.executeQuery();
 	    		while (rs.next() && (amount < 0 || list.size() < amount)) {
-	            	list.add(fn.apply(rs));
+	            	list.add(dataFunction.apply(rs));
 	            }
 	    	}
 	    	catch (SQLException e) {
@@ -345,7 +363,7 @@ public abstract class IDataHandler<P extends NexPlugin<P>, U extends IAbstractUs
 			try (Statement ps = this.con.createStatement()) {
 				ResultSet rs = ps.executeQuery(sql.toString());
 				while (rs.next() && (amount < 0 || list.size() < amount)) {
-		        	list.add(fn.apply(rs));
+		        	list.add(dataFunction.apply(rs));
 		        }
 			}
 			catch (SQLException e) {
@@ -353,7 +371,7 @@ public abstract class IDataHandler<P extends NexPlugin<P>, U extends IAbstractUs
 				e.printStackTrace();
 		    }
 		}
-		list.removeIf(user -> user == null);
+		list.removeIf(data -> data == null);
 		
 		return list;
 	}
