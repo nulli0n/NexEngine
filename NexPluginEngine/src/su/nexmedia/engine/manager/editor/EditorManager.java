@@ -65,7 +65,7 @@ public class EditorManager {
 	public static void startEdit(@NotNull Player player, @Nullable Object o, Enum<?> type) {
 		EDITOR_CACHE.put(player, new AbstractMap.SimpleEntry<>(type, o));
 		ClickText text = new ClickText(ENGINE.lang().Core_Editor_Tips_Exit_Name.getMsg());
-		text.createFullPlaceholder().execCmd(JStrings.EXIT).hint(ENGINE.lang().Core_Editor_Tips_Exit_Hint.getMsg());
+		text.createFullPlaceholder().execCmd("/" + JStrings.EXIT).hint(ENGINE.lang().Core_Editor_Tips_Exit_Hint.getMsg());
 		text.send(player);
 	}
 
