@@ -39,8 +39,9 @@ public class CommandManager<P extends NexPlugin<P>> implements Loadable {
 		if (this.plugin.hasEditor()) {
 			this.mainCommand.addSubCommand(new EditorCommand<P>(this.plugin));
 		}
+		this.mainCommand.addSubCommand(new ReloadCommand<P>(this.plugin));
+		
 		if (!this.plugin.isEngine()) {
-			this.mainCommand.addSubCommand(new ReloadCommand<P>(this.plugin));
 			this.mainCommand.addSubCommand(new AboutCommand<P>(this.plugin));
 		}
 		

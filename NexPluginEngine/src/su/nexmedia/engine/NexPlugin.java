@@ -99,6 +99,10 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
 	public abstract void disable();
 
 	public final void reload() {
+		if (this.isEngine()) {
+			this.setConfig();
+			return;
+		}
 		this.unloadManagers();
 		this.loadManagers();
 	}
