@@ -526,6 +526,12 @@ public class JYML extends YamlConfiguration {
 		return true;
 	}
 	
+	public boolean remove(@NotNull String path) {
+		if (!this.contains(path)) return false;
+		this.set(path, null);
+		return true;
+	}
+	
 	@NotNull
 	public File getFile() {
 		return this.f;

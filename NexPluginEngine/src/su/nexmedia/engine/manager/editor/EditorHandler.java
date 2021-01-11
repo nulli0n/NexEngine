@@ -90,15 +90,13 @@ public abstract class EditorHandler<P extends NexPlugin<P>> extends IListener<P>
     	Player p = e.getPlayer();
     	String msg = StringUT.color(e.getMessage().substring(1));
     	Map.Entry<Enum<?>, Object> editor = EditorManager.getEditor(p);
-    	if (editor != null || msg.equalsIgnoreCase(JStrings.EXIT)) {
-    		e.setCancelled(true);
-    	}
     	if (editor == null) return;
     	
     	Enum<?> type = editor.getKey();
     	if (!type.getClass().equals(this.type)) return;
     	
     	if (msg.equalsIgnoreCase(JStrings.EXIT)) {
+    		e.setCancelled(true);
     		EditorManager.endEdit(p);
     		return;
     	}

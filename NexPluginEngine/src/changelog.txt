@@ -1,5 +1,8 @@
 by: NightExpress, Integral-7, be2ON, MadNessa, Metal, lPariahl, Network
 
+====================[v2.0.3  - 09/11/2020]====================
+- Improved IUserManager - now async data load.
+- Improved IAbstractUser class.
 ====================[v2.0.0  - 09/11/2020]====================
 - Improved CommandRegister class. Now respects command permission.
 - Improved EditorManager class, merged from EditorUtils.

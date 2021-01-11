@@ -1,12 +1,10 @@
 package su.nexmedia.engine.manager;
 
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
 import org.jetbrains.annotations.NotNull;
 
 import su.nexmedia.engine.NexPlugin;
 
-public abstract class IListener<P extends NexPlugin<P>> implements Listener {
+public abstract class IListener<P extends NexPlugin<P>> implements AbstractListener {
 	
     @NotNull public final P plugin;
     
@@ -14,11 +12,8 @@ public abstract class IListener<P extends NexPlugin<P>> implements Listener {
         this.plugin = plugin;
     }
     
+    @Override
     public void registerListeners() {
         this.plugin.getPluginManager().registerEvents(this, this.plugin);
-    }
-    
-    public void unregisterListeners() {
-        HandlerList.unregisterAll(this);
     }
 }

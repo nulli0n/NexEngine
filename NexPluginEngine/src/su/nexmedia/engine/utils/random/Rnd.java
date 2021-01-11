@@ -3,11 +3,8 @@ package su.nexmedia.engine.utils.random;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -20,8 +17,6 @@ import org.bukkit.entity.Firework;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import su.nexmedia.engine.utils.CollectionsUT;
 
 public class Rnd {
 	
@@ -67,8 +62,12 @@ public class Rnd {
     }
     
     public static int get(int min, int max) {
-        return min + (int)Math.floor(Rnd.rnd.nextDouble() * (max - min + 1));
+        return min + (int) Math.floor(Rnd.rnd.nextDouble() * (max - min + 1));
     }
+    
+	public static double getDouble(double max) {
+		return getDouble(0, max);
+	}
     
 	public static double getDouble(double min, double max) {
 		return min + (max - min) * rnd.nextDouble();
@@ -80,14 +79,6 @@ public class Rnd {
 		double shifted = scaled + min;
 		return shifted;
 	}
-    
-    public static boolean chance(int chance) {
-        return chance >= 1 && (chance > 99 || nextInt(99) + 1 <= chance);
-    }
-    
-    public static boolean chance(double chance) {
-        return nextDouble() <= chance / 100.0;
-    }
     
     @NotNull
     public static <E> E get(@NotNull E[] list) {
@@ -103,77 +94,56 @@ public class Rnd {
         return list.isEmpty() ? null : list.get(get(list.size()));
     }
     
-    @Nullable
-	public static <T> List<T> getItemsByWeight(@NotNull Map<T, Double> src, boolean once) {
-		if (src.isEmpty()) return Collections.emptyList();
-		Set<T> set = new HashSet<>(); // Final drop list
-		
-		for (Entry<T, Double> en : src.entrySet()) {
-			// Negative chance always drop
-			if (en.getValue() <= 0) {
-				set.add(en.getKey());
-				continue;
-			}
-		}
-		
-		int amount = 1;
-		if (!once) amount = src.size();
-		
-		for (int i = 0; i < amount; i++) {
-			@SuppressWarnings("null")
-			T item = Rnd.getRandomItem(src, false);
-			if (item != null) {
-				set.add(item);
-			}
-		}
-		
-		return new ArrayList<>(set);
-	}
-    
 	@Nullable
-    public static <T> T getRandomItem(@NotNull Map<T, Double> map) {
-    	return getRandomItem(map, true);
-    }
-    
+	public static <T> T get(@NotNull Map<@NotNull T, Double> map) {
+		List<T> list = get(map, 1);
+		return list.isEmpty() ? null : list.get(0);
+	}
+	
+	@NotNull
+	public static <T> List<T> get(@NotNull Map<@NotNull T, Double> map, int amount) {
+		map.values().removeIf(chance -> chance <= 0D);
+		if (map.isEmpty()) return Collections.emptyList();
+		
+		List<T> list = new ArrayList<>();
+		double total = map.values().stream().mapToDouble(d -> d).sum();
+		
+	    for (int count = 0; count < amount; count++) {
+	    	double index = Rnd.getDouble(0D, total);//Math.random() * total;
+	        double countWeight = 0D;
+	        
+	        for (Map.Entry<T, Double> en : map.entrySet()) {
+	            countWeight += en.getValue();
+	            if (countWeight >= index) {
+	    	        list.add(en.getKey());
+	    	        break;
+	            }
+	        }
+	    }
+	    return list;
+	}
+	
+	@Nullable
+	@Deprecated
+	public static <T> T getRandomItem(@NotNull Map<T, Double> map) {
+		return getRandomItem(map, true);
+	}
+
+	@Deprecated
 	@Nullable
     public static <T> T getRandomItem(@NotNull Map<T, Double> map, boolean alwaysHundred) {
-		if (map.isEmpty()) return null;
-		
-    	map = CollectionsUT.sortByValue(map); // Sort for chance order
-    	
-		if (alwaysHundred) {
-			List<T> fix = new ArrayList<>();
-			for (Entry<T, Double> e : map.entrySet()) {
-				if (e.getValue() >= 100D) {
-					fix.add(e.getKey());
-					//return e.getKey();
-				}
-			}
-			if (!fix.isEmpty()) {
-				return fix.get(Rnd.nextInt(fix.size()));
-			}
-		}
-		
-	    List<T> items = new ArrayList<>(map.keySet());
-	    double totalSum = 0;
-
-	    for(double d : map.values()) {
-	        totalSum = totalSum + d;
-	    }
-
-	    double index = Rnd.getDouble(0, totalSum);
-	    double sum = 0;
-	    int i = 0;
-	    while(sum < index) {
-	        sum = sum + map.get(items.get(i++));
-	    }
-	    return items.get(Math.max(0,i-1));
+	    return get(map);
 	}
     
-    
-    
-    
-    public static int nextInt(int n) {
+    public static boolean chance(int chance) {
+	    return chance >= 1 && (chance > 99 || nextInt(99) + 1 <= chance);
+	}
+
+	public static boolean chance(double chance) {
+	    return nextDouble() <= chance / 100.0;
+	}
+
+	public static int nextInt(int n) {
         return (int)Math.floor(Rnd.rnd.nextDouble() * n);
     }
     

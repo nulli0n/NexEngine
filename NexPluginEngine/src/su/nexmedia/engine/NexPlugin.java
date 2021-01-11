@@ -137,7 +137,7 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
 	}
 	
 	@Nullable
-	protected final <T extends NHook<P>> T registerHook(@NotNull String pluginName, @NotNull Class<T> clazz) {
+	public final <T extends NHook<P>> T registerHook(@NotNull String pluginName, @NotNull Class<T> clazz) {
 		return this.getHooks().register(this, pluginName, clazz);
 	}
 	

@@ -154,6 +154,7 @@ public class ClickText {
 			return this;
 		}
 		
+		@SuppressWarnings("deprecation")
 		@NotNull
 		public ClickWord showItem(@NotNull ItemStack item) {
 			//if (Version.CURRENT.isHigher(Version.V1_15_R1)) {

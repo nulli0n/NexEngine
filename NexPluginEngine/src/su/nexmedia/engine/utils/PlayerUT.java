@@ -142,4 +142,14 @@ public class PlayerUT {
     	}
     	return true;
     }
+	
+	public static int countItem(@NotNull Player player, @NotNull ItemStack item) {
+		int userHas = 0;
+		for (ItemStack itemHas : player.getInventory().getContents()) {
+			if (!ItemUT.isAir(itemHas) && itemHas.isSimilar(item)) {
+				userHas += itemHas.getAmount();
+			}
+		}
+		return userHas;
+	}
 }

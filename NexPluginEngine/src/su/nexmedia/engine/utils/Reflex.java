@@ -21,11 +21,21 @@ public class Reflex {
 	
 	@Nullable
 	public static Class<?> getClass(@NotNull String path, @NotNull String name) {
+		return getClass(path + "." + name);
+	}
+	
+	@Nullable
+	public static Class<?> getInnerClass(@NotNull String path, @NotNull String name) {
+		return getClass(path + "$" + name);
+	}
+	
+	@Nullable
+	private static Class<?> getClass(@NotNull String path) {
 		try {
-			return Class.forName(path + "." + name);
+			return Class.forName(path);
 		} 
 		catch (ClassNotFoundException e) {
-			ENGINE.error("Reflex: Class not found: " + path + "." + name);
+			ENGINE.error("[Reflex] Class not found: " + path);
 			e.printStackTrace();
 			return null;
 		}
@@ -34,8 +44,10 @@ public class Reflex {
 	@Nullable
 	public static Constructor<?> getConstructor(@NotNull Class<?> clazz, Class<?>... types) {
 		try {
-			return clazz.getConstructor(types);
-		} 
+			Constructor<?> con = clazz.getDeclaredConstructor(types);
+			con.setAccessible(true);
+			return con;
+		}
 		catch (ReflectiveOperationException e) {
 			e.printStackTrace();
 		}

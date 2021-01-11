@@ -92,7 +92,11 @@ public class EditorManager {
 	}
 
 	public static void endEdit(@NotNull Player player) {
-		EditorManager.tip(player, ENGINE.lang().Core_Editor_Display_Done_Title.getMsg(), "", 40);
+		endEdit(player, true);
+	}
+	
+	public static void endEdit(@NotNull Player player, boolean msg) {
+		if (msg) EditorManager.tip(player, ENGINE.lang().Core_Editor_Display_Done_Title.getMsg(), "", 40);
 		EDITOR_CACHE.remove(player);
 	}
 

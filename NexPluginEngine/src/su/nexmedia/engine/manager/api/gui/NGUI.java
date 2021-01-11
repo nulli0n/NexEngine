@@ -134,9 +134,9 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		this.unregisterListeners();
 	}
 	
-	protected abstract void onCreate(@NotNull Player p, @NotNull Inventory inv, int page);
+	protected abstract void onCreate(@NotNull Player player, @NotNull Inventory inv, int page);
 
-	protected void onReady(@NotNull Player p, @NotNull Inventory inv, int page) {
+	protected void onReady(@NotNull Player player, @NotNull Inventory inv, int page) {
 		
 	}
 
@@ -146,10 +146,10 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		});
 	}
 	
-	public void open(@NotNull Player p, int page) {
+	public void open(@NotNull Player player, int page) {
 		page = Math.max(1, page);
 		
-		int maxPage = this.getUserPage(p, 1);
+		int maxPage = this.getUserPage(player, 1);
 		if (maxPage >= 1) page = Math.min(page, maxPage);
 		
 		// When we call .openInventory method
@@ -160,12 +160,12 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		// and for safe gui sliding.
 		// 
 		// So, this system prevents cache clearing when it's not intended.
-		String key = p.getName();
+		String key = player.getName();
 		
 		// Only clear old items if player updates current opened GUI.
 		// So we can pre-add items to the GUI before open it for the first time to player.
-		if (this.viewers.contains(p)) {
-			this.clearUserCache(p);
+		if (this.viewers.contains(player)) {
+			this.clearUserCache(player);
 			this.LOCKED_CACHE.add(key);
 		}
 		
@@ -179,11 +179,11 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		}
 		
 		Inventory inv = this.getInventory();
-		this.onCreate(p, inv, page);
-		this.fillGUI(inv, p);
-		this.onReady(p, inv, page);
-		this.viewers.add(p);
-		p.openInventory(inv);
+		this.onCreate(player, inv, page);
+		this.fillGUI(inv, player);
+		this.onReady(player, inv, page);
+		this.viewers.add(player);
+		player.openInventory(inv);
 		
 		// Unlock cache to allow clear on next open
 		this.LOCKED_CACHE.remove(key);
@@ -211,13 +211,13 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		return false;
 	}
 	
-	protected final void setUserPage(@NotNull Player p, int current, int max) {
-		String key = p.getName();
+	protected final void setUserPage(@NotNull Player player, int current, int max) {
+		String key = player.getName();
 		this.userPage.put(key, new int[] {Math.max(1, current), max});
 	}
 	
-	public final int getUserPage(@NotNull Player p, int index) {
-		String key = p.getName();
+	public final int getUserPage(@NotNull Player player, int index) {
+		String key = player.getName();
 		if (this.userPage.containsKey(key)) {
 			index = Math.min(1, Math.max(0, index));
 			return this.userPage.get(key)[index];
@@ -226,13 +226,13 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 	}
 	
 	@NotNull
-	protected final List<GuiItem> getUserItems(@NotNull Player p) {
+	protected final List<GuiItem> getUserItems(@NotNull Player player) {
 		// List to save item order
-		String name = p.getName();
+		String name = player.getName();
 		
 		List<GuiItem> list = this.getContent().values().stream().filter(guiItem -> {
 			String id = guiItem.getId();
-			if (!guiItem.hasPermission(p)) return false;
+			if (!guiItem.hasPermission(player)) return false;
 			if (id.contains(VALUE_USER_ID) && !id.contains(name)) return false;
 			return true;
 			
@@ -242,8 +242,8 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 	}
 
 	@Nullable
-	protected final GuiItem getButton(@NotNull Player p, int slot) {
-		String id = this.getUserContent(p).getOrDefault(slot, this.slotRefer.get(slot));
+	protected final GuiItem getButton(@NotNull Player player, int slot) {
+		String id = this.getUserContent(player).getOrDefault(slot, this.slotRefer.get(slot));
 		return id != null ? this.items.get(id) : null;
 	}
 	
@@ -259,18 +259,18 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		this.items.put(id, guiItem);
 	}
 	
-	protected final void addButton(@NotNull Player p, @NotNull JIcon icon, int... slots) {
-		String id = VALUE_USER_ID + p.getName() + this.items.size();
+	protected final void addButton(@NotNull Player player, @NotNull JIcon icon, int... slots) {
+		String id = VALUE_USER_ID + player.getName() + this.items.size();
 		ItemStack item = icon.build();
 		
 		GuiItem guiItem = new GuiItem(id, null, item, false, 0, new TreeMap<>(), new HashMap<>(), null, slots);
 		guiItem.setClick(icon.getClick());
 		
-		Map<Integer, String> userMap = this.getUserContent(p);
+		Map<Integer, String> userMap = this.getUserContent(player);
 		for (int slot : guiItem.getSlots()) {
 			userMap.put(slot, id);
 		}
-		this.userSlotRefer.put(p.getName(), userMap);
+		this.userSlotRefer.put(player.getName(), userMap);
 		this.items.put(id, guiItem);
 	}
 	
@@ -287,12 +287,12 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		return item == null ? new ItemStack(Material.AIR) : item;
 	}
 	
-	protected void fillGUI(@NotNull Inventory inv, @NotNull Player p) {
+	protected void fillGUI(@NotNull Inventory inv, @NotNull Player player) {
 		// Auto paginator
-		int page = this.getUserPage(p, 0);
-		int pages = this.getUserPage(p, 1);
+		int page = this.getUserPage(player, 0);
+		int pages = this.getUserPage(player, 1);
 		
-		for (GuiItem guiItem : this.getUserItems(p)) {
+		for (GuiItem guiItem : this.getUserItems(player)) {
 			
 			if (guiItem.getType() == ContentType.NEXT) {
 				if (page < 0 || pages < 0 || page >= pages)  {
@@ -307,7 +307,7 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 			
 			ItemStack item = null;
 			
-			this.replaceFrame(p, guiItem); // Method for interactive item frame changes on click
+			this.replaceFrame(player, guiItem); // Method for interactive item frame changes on click
 			
 			if (this.isAnimated() && guiItem.isAnimationAutoPlay()) {
 				String id = guiItem.getId();
@@ -324,26 +324,26 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 				item = guiItem.getItem();
 			}
 			
-			this.replaceMeta(p, item, guiItem);
-			ItemUT.applyPlaceholderAPI(p, item);
+			this.replaceMeta(player, item, guiItem);
+			ItemUT.applyPlaceholderAPI(player, item);
 			
 			for (int slot : guiItem.getSlots()) {
 				if (slot >= inv.getSize()) continue;
 				inv.setItem(slot, item);
 			}
 		}
-		this.replaceMeta(p, inv);
+		this.replaceMeta(player, inv);
 	}
 	
-	protected void replaceFrame(@NotNull Player p, @NotNull GuiItem guiItem) {
+	protected void replaceFrame(@NotNull Player player, @NotNull GuiItem guiItem) {
 		
 	}
 	
-	protected void replaceMeta(@NotNull Player p, @NotNull Inventory inv) {
+	protected void replaceMeta(@NotNull Player player, @NotNull Inventory inv) {
 		
 	}
 	
-	protected void replaceMeta(@NotNull Player p, @NotNull ItemStack item, @NotNull GuiItem guiItem) {
+	protected void replaceMeta(@NotNull Player player, @NotNull ItemStack item, @NotNull GuiItem guiItem) {
 		
 	}
 	
@@ -386,12 +386,12 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 	}
 	
 	@NotNull
-	public final Map<Integer, String> getUserContent(@NotNull Player p) {
-		return this.userSlotRefer.computeIfAbsent(p.getName(), map -> new HashMap<>());
+	public final Map<Integer, String> getUserContent(@NotNull Player player) {
+		return this.userSlotRefer.computeIfAbsent(player.getName(), map -> new HashMap<>());
 	}
 	
-	protected final void clearUserCache(@NotNull Player p) {
-		String key = p.getName();
+	protected final void clearUserCache(@NotNull Player player) {
+		String key = player.getName();
 		if (this.LOCKED_CACHE.contains(key)) {
 			//System.out.println("Cache locked...");
 			return;
@@ -407,7 +407,7 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		
 		this.userSlotRefer.remove(key);
 		this.userPage.remove(key);
-		this.viewers.remove(p);
+		this.viewers.remove(player);
 	}
 	
 	protected final boolean isPlayerInv(int slot) {
@@ -415,23 +415,23 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 	}
 	
 	protected void click(
-			@NotNull Player p, @Nullable ItemStack item, int slot, @NotNull InventoryClickEvent e) {
+			@NotNull Player player, @Nullable ItemStack item, int slot, @NotNull InventoryClickEvent e) {
 		
-		GuiItem guiItem = this.getButton(p, slot);
-		if (guiItem == null || !guiItem.hasPermission(p)) return;
+		GuiItem guiItem = this.getButton(player, slot);
+		if (guiItem == null || !guiItem.hasPermission(player)) return;
 		
 		Enum<?> type = guiItem.getType();
-		guiItem.click(p, type, e);
+		guiItem.click(player, type, e);
 		
 		// Execute custom user actions when click button.
 		ClickType clickType = ClickType.from(e);
 		ActionManipulator actions = guiItem.getCustomClick(clickType);
 		if (actions != null) {
-			actions.process(p);
+			actions.process(player);
 		}
 	}
 	
-	protected void onClose(@NotNull Player p, @NotNull InventoryCloseEvent e) {
+	protected void onClose(@NotNull Player player, @NotNull InventoryCloseEvent e) {
 		if (this.getViewers().isEmpty() && this.destroyWhenNoViewers()) {
 			this.clear();
 			return;

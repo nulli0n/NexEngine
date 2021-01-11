@@ -69,7 +69,7 @@ public class HookManager extends IManager<NexEngine> {
    }
 	
 	@NotNull
-	private Set<NHook<?>> getHooks(@NotNull NexPlugin<?> holder) {
+	public Set<NHook<?>> getHooks(@NotNull NexPlugin<?> holder) {
 		return this.hooks.computeIfAbsent(holder.getName(), hooks -> new HashSet<>());
 	}
 	

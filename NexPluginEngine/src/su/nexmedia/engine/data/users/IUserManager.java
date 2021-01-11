@@ -11,6 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent.Result;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +29,9 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 	private Set<@NotNull U> toSave;
 	private SaveTask saveTask;
 	
+	private Set<UUID> isPassJoin;
+	private Set<UUID> toCreate;
+	
 	public IUserManager(@NotNull P plugin) {
 		super(plugin);
 	}
@@ -35,6 +40,9 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 	public void setup() {
 		this.activeUsers = new HashMap<>();
 		this.toSave = ConcurrentHashMap.newKeySet();
+		this.isPassJoin = ConcurrentHashMap.newKeySet();
+		this.toCreate = ConcurrentHashMap.newKeySet();
+		
 		this.registerListeners();
 		
 		this.saveTask = new SaveTask(plugin);
@@ -43,14 +51,16 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 	
 	@Override
 	public void shutdown() {
+		this.unregisterListeners();
+		
 		if (this.saveTask != null) {
 			this.saveTask.stop();
 			this.saveTask = null;
 		}
 		this.autosave();
 		this.activeUsers.clear();
-		
-		this.unregisterListeners();
+		this.isPassJoin.clear();
+		this.toCreate.clear();
 	}
 	
 	public void loadOnlineUsers() {
@@ -100,16 +110,16 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 	@NotNull
 	protected abstract U createData(@NotNull Player player);
 	
-	@NotNull
+	@Nullable
 	public U getOrLoadUser(@NotNull Player player) {
 		if (Hooks.isNPC(player)) {
 			throw new IllegalStateException("Could not load user data from an NPC!");
 		}
 		
 		@Nullable U user = this.getOrLoadUser(player.getUniqueId().toString(), true);
-		if (user == null) {
+		/*if (user == null) {
 			throw new IllegalStateException("Could not load user data from an online player!");
-		}
+		}*/
 		return user;
 	}
 	
@@ -136,7 +146,7 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 		// Check if user is loaded.
 		@Nullable U user = this.activeUsers.get(uuid);
 		if (user != null) return user;
-			
+		
 		// Check if user exists, but was unloaded and moved to save cache.
 		for (U userOff : this.toSave) {
 			if (userOff.getUUID().toString().equalsIgnoreCase(uuid) || userOff.getName().equalsIgnoreCase(uuid)) {
@@ -149,8 +159,15 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 		// Try to load user from the database.
 		user = plugin.getData().getUser(uuid, isId);
 		if (user != null) {
-			this.activeUsers.put(user.getUUID().toString(), user);
-			return user;
+			final U user2 = user;
+			this.activeUsers.put(user.getUUID().toString(), user2);
+			if (this.isPassJoin.remove(user2.getUUID())) {
+				//plugin.info("5. Late data loded: " + user2.getName());
+				this.plugin.getServer().getScheduler().runTask(plugin, () -> {
+					this.onUserLoad(user2);
+				});
+			}
+			return user2;
 		}
 		
 		if (playerHolder == null) {
@@ -165,6 +182,7 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 			this.plugin.getData().addUser(user2);
 		});
 		this.activeUsers.put(uuid, user2);
+		this.toCreate.remove(user2.getUUID());
 		return user2;
 	}
 	
@@ -190,6 +208,15 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 		
 	}
 	
+	protected void onUserLoad(@NotNull U user) {
+		
+	}
+	
+	@NotNull
+	public Map<String, @NotNull U> getActiveUsersMap() {
+		return this.activeUsers;
+	}
+
 	@NotNull
 	public Collection<@NotNull U> getActiveUsers() {
 		return this.activeUsers.values();
@@ -200,21 +227,45 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 		return this.toSave;
 	}
 	
-	@NotNull
-	public Map<String, @NotNull U> getUserMap() {
-		return this.activeUsers;
+	public boolean isLoaded(@NotNull Player player) {
+		return this.activeUsers.containsKey(player.getUniqueId().toString());
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onUserLogin(AsyncPlayerPreLoginEvent e) {
+		if (e.getLoginResult() == Result.ALLOWED) {
+			//plugin.info("0. Process data for: " + e.getName());
+			if (!this.plugin.getData().isUserExists(e.getUniqueId().toString(), true)) {
+				//plugin.info("0.1: Data not found, let create on join " + e.getName());
+				this.toCreate.add(e.getUniqueId());
+				return;
+			}
+			//plugin.info("0.2 Data contains, lets load: " + e.getName());
+			this.getOrLoadUser(e.getUniqueId().toString(), true);
+		}
 	}
 	
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onUserJoin(PlayerJoinEvent e) {
-		Player p = e.getPlayer();
-		this.getOrLoadUser(p);
+		Player player = e.getPlayer();
+		
+		//plugin.info("1. Pass join event: " + player.getName());
+		this.isPassJoin.add(player.getUniqueId());
+		if (!this.isLoaded(player) && !this.toCreate.contains(player.getUniqueId())) return;
+		//plugin.info("2. Not loaded/created: " + player.getName());
+		
+		@Nullable U user = this.getOrLoadUser(player);
+		if (user == null) return;
+		
+		//plugin.info("3. Created/loaded: " + player.getName());
+		this.onUserLoad(user);
+		this.isPassJoin.remove(user.getUUID());
 	}
 	
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onUserQuit(PlayerQuitEvent e) {
-		Player p = e.getPlayer();
-		this.unloadUser(p);
+		Player player = e.getPlayer();
+		this.unloadUser(player);
 	}
 	
 	class SaveTask extends ITask<P> {

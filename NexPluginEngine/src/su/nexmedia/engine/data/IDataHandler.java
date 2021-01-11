@@ -436,12 +436,7 @@ public abstract class IDataHandler<P extends NexPlugin<P>, U extends IAbstractUs
 	@Nullable
     public final U getUser(@NotNull String uuid, boolean isId) {
 		Map<String, String> whereMap = new HashMap<>();
-		if (isId) {
-			whereMap.put(COL_USER_UUID, uuid);
-		}
-		else {
-			whereMap.put(COL_USER_NAME, uuid);
-		}
+		whereMap.put(isId ? COL_USER_UUID : COL_USER_NAME, uuid);
     	return this.getData(this.TABLE_USERS, whereMap, this.getFunctionToUser());
     }
     
