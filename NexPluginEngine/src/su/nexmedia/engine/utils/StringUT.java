@@ -130,7 +130,7 @@ public class StringUT {
     
 	public static int[] getIntArray(@NotNull String str) {
 		int[] slots = new int[1];
-		String[] raw = str.replaceAll("\\s", "").split(",");
+		String[] raw = str.replaceAll("\\s", ",").replace(",,", ",").split(",");
 		slots = new int[raw.length];
 		for (int i = 0; i < raw.length; i++) {
 			try {

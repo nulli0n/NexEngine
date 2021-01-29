@@ -66,6 +66,23 @@ public abstract class ILangTemplate {
 	public JLangMsg Core_Command_Reload_Desc = new JLangMsg("Reload the plugin.");
 	public JLangMsg Core_Command_Reload_Done = new JLangMsg("Reloaded!");
 
+	public JLangMsg Core_Editor_Tips_Commands = new JLangMsg(
+			"&7"
+			+ "\n"
+			+ "&b&lCommand Tips:"
+			+ "\n"
+			+ "&7"
+			+ "\n"
+			+ "&2• &a[CONSOLE] <command> &2- Execute from Console."
+			+ "\n"
+			+ "&2• &a[OP] <command> &2- Execute as an Operator."
+			+ "\n"
+			+ "&2• (no prefix) &a<command> &2- Execute from a Player."
+			+ "\n"
+			+ "&2• &a%player% &2- Player name placeholder."
+			+ "\n"
+			+ "&7");
+	
 	public JLangMsg Core_Editor_Tips_Header = new JLangMsg(
 			"&7"
 			+ "\n"

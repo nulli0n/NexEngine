@@ -20,6 +20,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -146,7 +147,30 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		});
 	}
 	
+	// TODO Experimental
+	public void refill() {
+		this.getViewers().forEach(player -> {
+			InventoryView view = player.getOpenInventory();
+			Inventory top = view.getTopInventory();
+			if (!(top.getHolder() instanceof NGUI<?>)) return;
+			
+			for (int slot = 0; slot < top.getSize(); slot++) {
+				top.setItem(slot, null);
+			}
+			
+			int page = this.getUserPage(player, 0);
+			this.clearUserCache(player);
+			this.onCreate(player, top, page);
+			this.fillGUI(top, player);
+			this.onReady(player, top, page);
+			
+			this.viewers.add(player);
+		});
+	}
+	
 	public void open(@NotNull Player player, int page) {
+		if (player.isSleeping()) return;
+		
 		page = Math.max(1, page);
 		
 		int maxPage = this.getUserPage(player, 1);
@@ -252,7 +276,7 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 	public final void addButton(@NotNull GuiItem guiItem) {
 		String id = guiItem.getId();
 		
-		// TODO clear user slot refer? like override?
+		// TODO remove same item slot from user slot refer? like override?
 		for (int slot : guiItem.getSlots()) {
 			this.slotRefer.put(slot, id);
 		}

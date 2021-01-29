@@ -1,5 +1,8 @@
 package su.nexmedia.engine.hooks.external;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import org.bukkit.Location;
@@ -52,6 +55,11 @@ public class MythicMobsHK extends NHook<NexEngine> {
 	
 	public double getLevel(@NotNull Entity e) {
 		return mm.getAPIHelper().getMythicMobInstance(e).getLevel();
+	}
+	
+	@NotNull
+	public List<String> getMythicIds() {
+		return new ArrayList<>(mm.getMobManager().getMobNames());
 	}
 	
 	public void setSkillDamage(@NotNull Entity e, double d) {

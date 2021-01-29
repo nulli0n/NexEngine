@@ -135,6 +135,9 @@ public class JYML extends YamlConfiguration {
 			s = s.replace('§', '&');
 			o = s;
 		}*/
+		if (o instanceof Set) {
+			o = new ArrayList<>((Set<?>)o);
+		}
 		super.set(path, o);
 		this.isChanged = true;
 	}

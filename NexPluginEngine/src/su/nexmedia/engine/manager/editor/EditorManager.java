@@ -1,7 +1,7 @@
 package su.nexmedia.engine.manager.editor;
 
 import java.util.AbstractMap;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -69,7 +69,7 @@ public class EditorManager {
 		text.send(player);
 	}
 
-	public static void sendClickableTips(@NotNull Player player, @NotNull List<String> items) {
+	public static void sendClickableTips(@NotNull Player player, @NotNull Collection<String> items) {
 		StringBuilder builder = new StringBuilder();
 		items.forEach(pz -> {
 			if (builder.length() > 0) builder.append(" &7| ");
@@ -85,6 +85,10 @@ public class EditorManager {
 		
 		ENGINE.lang().Core_Editor_Tips_Header.send(player, false);
 		text.send(player);
+	}
+	
+	public static void sendCommandTips(@NotNull Player player) {
+		ENGINE.lang().Core_Editor_Tips_Commands.send(player, false);
 	}
 
 	public static boolean isEdit(@NotNull Player player) {
