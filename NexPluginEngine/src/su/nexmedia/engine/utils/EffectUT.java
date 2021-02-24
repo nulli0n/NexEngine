@@ -48,7 +48,7 @@ public class EffectUT {
 			return;
 		}
 		
-		if (particle == Particle.BLOCK_CRACK) {
+		if (particle == Particle.BLOCK_CRACK || particle == Particle.LEGACY_BLOCK_CRACK) {
 			Material m = particleData != null ? Material.getMaterial(particleData) : Material.STONE;
 			BlockData blockData = m != null ? m.createBlockData() : Material.STONE.createBlockData();
 			world.spawnParticle(particle, loc, amount, x, y, z, speed, blockData);

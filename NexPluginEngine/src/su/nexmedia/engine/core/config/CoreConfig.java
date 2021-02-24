@@ -11,7 +11,6 @@ import su.nexmedia.engine.utils.StringUT;
 
 public class CoreConfig extends IConfigTemplate {
 
-	public static String MODULES_PATH = 			"/modules/";
 	public static String MODULES_PATH_INTERNAL = 	"/modules/";
 	public static String MODULES_PATH_EXTERNAL = 	"/modules/_external/";
 	

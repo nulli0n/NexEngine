@@ -60,6 +60,11 @@ public class CommandManager<P extends NexPlugin<P>> implements Loadable {
 	}
 	
 	@NotNull
+	public Set<IGeneralCommand<P>> getCommands() {
+		return this.commands;
+	}
+	
+	@NotNull
 	public MainCommand<P> getMainCommand() {
 		return this.mainCommand;
 	}

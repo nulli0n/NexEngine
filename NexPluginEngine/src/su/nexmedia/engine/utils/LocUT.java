@@ -86,16 +86,12 @@ public class LocUT {
 		float yaw = loc.getYaw();
 		float pitch = loc.getPitch();
 		
-		Block b = loc.getBlock();
-		
-		Block under = b.getLocation().add(0, -1, 0).getBlock();
-		while (under.isEmpty() && !under.getType().isSolid()) {
-			b = under;
-			under = under.getLocation().add(0, -1, 0).getBlock();
-			if (under.getY() <= 1) return loc;
+		Block under = loc.getBlock();
+		while ((under.isEmpty() || !under.getType().isSolid()) && under.getY() > 0) {
+			under = under.getRelative(BlockFace.DOWN);
 		}
 		
-		loc = b.getLocation();
+		loc = under.getRelative(BlockFace.UP).getLocation();
 		loc.setYaw(yaw);
 		loc.setPitch(pitch);
 		return loc;

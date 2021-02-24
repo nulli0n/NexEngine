@@ -121,8 +121,7 @@ public class VaultHK extends NHook<NexEngine> {
 
 	@NotNull
 	public String getEconomyName() {
-		String name = this.economy.getName();
-		return name == null ? "" : name;
+		return this.hasEconomy() ? this.economy.getName() : "null";
 	}
 
 	@NotNull

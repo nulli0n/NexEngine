@@ -32,8 +32,8 @@ public class EditorCommand<P extends NexPlugin<P>> extends ISubCommand<P> {
 
 	@Override
 	public void perform(@NotNull CommandSender sender, String label, @NotNull String[] args) {
-		Player p = (Player) sender;
-		this.plugin.openEditor(p);
+		Player player = (Player) sender;
+		this.plugin.openEditor(player);
 	}
 
 }

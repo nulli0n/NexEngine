@@ -219,6 +219,18 @@ public abstract class IDataHandler<P extends NexPlugin<P>, U extends IAbstractUs
 	    this.execute(sql.toString());
 	}
 	
+	protected void removeColumn(
+			@NotNull String table, 
+			@NotNull String column) {
+	    if (!this.hasColumn(table, column)) return;
+	    
+	    StringBuilder sql = new StringBuilder();
+	    sql.append("ALTER TABLE ").append(table).append(" ");
+	    sql.append("DROP COLUMN ").append(column);
+	    
+	    this.execute(sql.toString());
+	}
+	
 	public final boolean hasColumn(@NotNull String table, @NotNull String columnName) {
 		this.con = this.getConnection();
 		String sql = "SELECT * FROM " + table;

@@ -4,7 +4,7 @@ import org.bukkit.event.Cancellable;
 
 public abstract class ICancellableEvent extends IEvent implements Cancellable {
 	
-	private boolean cancelled;
+	private boolean cancelled = false;
 	
 	public ICancellableEvent() {
 		this(false);
@@ -12,7 +12,7 @@ public abstract class ICancellableEvent extends IEvent implements Cancellable {
 	
 	public ICancellableEvent(boolean async) {
 		super(async);
-		this.setCancelled(false);
+		//this.setCancelled(false);
 	}
 	
 	@Override

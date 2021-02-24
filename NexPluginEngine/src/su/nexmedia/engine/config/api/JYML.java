@@ -48,22 +48,46 @@ import su.nexmedia.engine.utils.random.Rnd;
 
 public class JYML extends YamlConfiguration {
 
-	private File f;
+	private File file;
 	private boolean isChanged = false;
 	
 	public JYML(@NotNull String path, @NotNull String file) {
 		this(new File(path, file));
 	}
 	
-	public JYML(@NotNull File f) {
-		FileUT.create(f);
-		this.f = f;
+	public JYML(@NotNull File file) {
+		FileUT.create(file);
+		this.file = file;
 		this.reload();
 	}
 	
+	@NotNull
+	public File getFile() {
+		return this.file;
+	}
+
+	public void save() {
+		try {
+			this.save(this.file);
+		} 
+		catch (IOException e) {
+			NexEngine.get().error("Could not save config: " + file.getName());
+			e.printStackTrace();
+		}
+	}
+
+	public boolean saveChanges() {
+		if (this.isChanged) {
+			this.save();
+			this.isChanged = false;
+			return true;
+		}
+		return false;
+	}
+
 	public boolean reload() {
 		try {
-			this.load(this.f);
+			this.load(this.file);
 			this.isChanged = false;
 			return true;
 		} 
@@ -111,23 +135,13 @@ public class JYML extends YamlConfiguration {
 		return configs;
 	}
 
-	@NotNull
-	public Set<String> getSection(@NotNull String path) {
-		ConfigurationSection cs = this.getConfigurationSection(path);
-		return cs == null ? Collections.emptySet() : cs.getKeys(false);
+	// Add missing value
+	public boolean addMissing(@NotNull String path, @Nullable Object val) {
+		if (this.contains(path)) return false;
+		this.set(path, val);
+		return true;
 	}
-	
-	public void setLocation(@NotNull String path, @Nullable Location loc) {
-		this.set(path, loc == null ? null : LocUT.serialize(loc));
-	}
-	
-	@Nullable
-	@Override
-	public Location getLocation(String path) {
-		String raw = this.getString(path);
-		return raw == null ? null : LocUT.deserialize(raw);
-	}
-	
+
 	@Override
 	public void set(String path, @Nullable Object o) {
 		/*if (o != null && o instanceof String) {
@@ -138,10 +152,25 @@ public class JYML extends YamlConfiguration {
 		if (o instanceof Set) {
 			o = new ArrayList<>((Set<?>)o);
 		}
+		else if (o instanceof Location) {
+			o = LocUT.serialize((Location) o);
+		}
 		super.set(path, o);
 		this.isChanged = true;
 	}
 	
+	public boolean remove(@NotNull String path) {
+		if (!this.contains(path)) return false;
+		this.set(path, null);
+		return true;
+	}
+
+	@NotNull
+	public Set<String> getSection(@NotNull String path) {
+		ConfigurationSection section = this.getConfigurationSection(path);
+		return section == null ? Collections.emptySet() : section.getKeys(false);
+	}
+
 	@Override
 	@Nullable
 	public String getString(String path) {
@@ -152,14 +181,11 @@ public class JYML extends YamlConfiguration {
 	@Override
 	@NotNull
 	public String getString(String path, @Nullable String def) {
-		String s = super.getString(path, def);
-		if (s == null) {
-			if (def != null) {
-				return def;
-			}
-			return "";
+		String str = super.getString(path, def);
+		if (str == null) {
+			return def != null ? def : "";
 		}
-		return s;
+		return str;
 	}
 	
 	@NotNull
@@ -167,6 +193,18 @@ public class JYML extends YamlConfiguration {
 		return new HashSet<>(this.getStringList(path));
 	}
 	
+	@Override
+	@Nullable
+	public Location getLocation(String path) {
+		String raw = this.getString(path);
+		return raw == null ? null : LocUT.deserialize(raw);
+	}
+
+	@Deprecated
+	public void setLocation(@NotNull String path, @Nullable Location loc) {
+		this.set(path, loc == null ? null : LocUT.serialize(loc));
+	}
+
 	public int[] getIntArray(@NotNull String path) {
 		int[] slots = new int[0];
 		
@@ -209,11 +247,12 @@ public class JYML extends YamlConfiguration {
 	public ItemStack getItem(@NotNull String path, boolean id) {
 		if (!path.isEmpty() && !path.endsWith(".")) path = path + ".";
 		
-		String[] mat = this.getString(path + "material", "AIR").split(":");
-		Material material = Material.getMaterial(mat[0].toUpperCase());
-		if (material == null) return new ItemStack(Material.AIR);
+		Material material = Material.getMaterial(this.getString(path + "material", "").toUpperCase());
+		if (material == null || material == Material.AIR) return new ItemStack(Material.AIR);
 		
 		ItemStack item = new ItemStack(material);
+		ItemMeta meta = item.getItemMeta();
+		if (meta == null) return item;
 		
 		item.setAmount(this.getInt(path + "amount", 1));
 		
@@ -227,9 +266,6 @@ public class JYML extends YamlConfiguration {
 				ItemUT.addSkullTexture(item, hash);
 			}
 		}
-		
-		ItemMeta meta = item.getItemMeta();
-		if (meta == null) return item;
 		
 		int durability = this.getInt(path + "durability");
 		if (durability > 0 && meta instanceof Damageable) {
@@ -255,18 +291,16 @@ public class JYML extends YamlConfiguration {
 		else {
 			for (String flag : flags) {
 				ItemFlag itemFlag = CollectionsUT.getEnum(flag, ItemFlag.class);
-				if (itemFlag != null) {
-					meta.addItemFlags(itemFlag);
-				}
+				if (itemFlag != null) meta.addItemFlags(itemFlag);
 			}
 		}
 		
 		String color = this.getString(path + "color");
 		if (color != null && !color.isEmpty()) {
 			String[] rgb = color.split(",");
-			int r = StringUT.getInteger(rgb[0], Rnd.get(0, 255));
-			int g = rgb.length >= 2 ? StringUT.getInteger(rgb[1], Rnd.get(0, 255)) : Rnd.get(0, 255);
-			int b = rgb.length >= 3 ? StringUT.getInteger(rgb[2], Rnd.get(0, 255)) : Rnd.get(0, 255);
+			int r = StringUT.getInteger(rgb[0], Rnd.get(255));
+			int g = rgb.length >= 2 ? StringUT.getInteger(rgb[1], Rnd.get(255)) : Rnd.get(255);
+			int b = rgb.length >= 3 ? StringUT.getInteger(rgb[2], Rnd.get(255)) : Rnd.get(255);
 			
 			if (meta instanceof LeatherArmorMeta) {
 				LeatherArmorMeta lm = (LeatherArmorMeta) meta;
@@ -330,7 +364,7 @@ public class JYML extends YamlConfiguration {
 		String[] ss = path.split("\\.");
 		String id = ss[ss.length - 1];
 		if (id == null || id.isEmpty()) {
-			id = f.getName().replace(".yml", "") + "-icon-" + Rnd.get(0, 3000);
+			id = file.getName().replace(".yml", "") + "-icon-" + Rnd.get(3000);
 		}
 		
 		Map<ClickType, ActionManipulator> customClicks = new HashMap<>();
@@ -400,9 +434,9 @@ public class JYML extends YamlConfiguration {
 		}
 		if (color != null) {
 			colorRaw = new StringBuilder()
-					.append(color.getRed()).append(",")
-					.append(color.getGreen()).append(",")
-					.append(color.getBlue()).append(",").toString();
+				.append(color.getRed()).append(",")
+				.append(color.getGreen()).append(",")
+				.append(color.getBlue()).append(",").toString();
     	}
 		this.set(path + "color", colorRaw);
 		
@@ -448,7 +482,7 @@ public class JYML extends YamlConfiguration {
 	public NCraftRecipe getCraftRecipe(@NotNull String path) {
 		if (!path.endsWith(".")) path += ".";
 		
-		String id = this.getString(path + "id", f.getName().replace(".yml", ""));
+		String id = this.getString(path + "id", file.getName().replace(".yml", ""));
 		boolean shape = this.getBoolean(path + "shaped");
 		ItemStack result = this.getItem64(path + "result");
 		if (result == null) {
@@ -492,7 +526,7 @@ public class JYML extends YamlConfiguration {
 	public NFurnaceRecipe getFurnaceRecipe(@NotNull String path) {
 		if (!path.endsWith(".")) path += ".";
 		
-		String id = this.getString(path + "id", f.getName().replace(".yml", ""));
+		String id = this.getString(path + "id", file.getName().replace(".yml", ""));
 		ItemStack input = this.getItem64(path + "input");
 		ItemStack result = this.getItem64(path + "result");
 		if (result == null || input == null) {
@@ -520,42 +554,5 @@ public class JYML extends YamlConfiguration {
 		this.setItem64(path + "result", recipe.getResult());
 		this.set(path + "exp", recipe.getExp());
 		this.set(path + "time", recipe.getTime() / 20D); // Turn to decimal seconds
-	}
-	
-	// Add missing value
-	public boolean addMissing(@NotNull String path, @Nullable Object val) {
-		if (this.contains(path)) return false;
-		this.set(path, val);
-		return true;
-	}
-	
-	public boolean remove(@NotNull String path) {
-		if (!this.contains(path)) return false;
-		this.set(path, null);
-		return true;
-	}
-	
-	@NotNull
-	public File getFile() {
-		return this.f;
-	}
-	
-	public void save() {
-		try {
-			this.save(this.f);
-		} 
-		catch (IOException e) {
-			NexEngine.get().error("Could not save config: " + f.getName());
-			e.printStackTrace();
-		}
-	}
-	
-	public boolean saveChanges() {
-		if (this.isChanged) {
-			this.save();
-			this.isChanged = false;
-			return true;
-		}
-		return false;
 	}
 }

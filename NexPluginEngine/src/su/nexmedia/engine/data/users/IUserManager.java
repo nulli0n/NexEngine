@@ -19,6 +19,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import su.nexmedia.engine.NexDataPlugin;
+import su.nexmedia.engine.data.event.EngineUserCreatedEvent;
+import su.nexmedia.engine.data.event.EngineUserLoadEvent;
+import su.nexmedia.engine.data.event.EngineUserUnloadEvent;
 import su.nexmedia.engine.hooks.Hooks;
 import su.nexmedia.engine.manager.IManager;
 import su.nexmedia.engine.manager.api.task.ITask;
@@ -161,10 +164,15 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 		if (user != null) {
 			final U user2 = user;
 			this.activeUsers.put(user.getUUID().toString(), user2);
+			
+			// Игрок уже успел войти полностью на сервер (пройти JoinEvent)
+			// поэтому кастомный ивент в JoinEvent вызван не будет, а значит
+			// вызываем его здесь в основном потоке.
 			if (this.isPassJoin.remove(user2.getUUID())) {
-				//plugin.info("5. Late data loded: " + user2.getName());
 				this.plugin.getServer().getScheduler().runTask(plugin, () -> {
 					this.onUserLoad(user2);
+					EngineUserLoadEvent<P, U> event = new EngineUserLoadEvent<>(plugin, user2);
+					plugin.getPluginManager().callEvent(event);
 				});
 			}
 			return user2;
@@ -175,6 +183,10 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 		}
 		
 		user = this.createData(playerHolder);
+		
+		EngineUserCreatedEvent<P, U> event = new EngineUserCreatedEvent<>(plugin, user);
+		plugin.getPluginManager().callEvent(event);
+		
 		final U user2 = user;
 		
 		this.plugin.info("Created new user data for: '" + uuid + "'");
@@ -187,11 +199,17 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 	}
 	
 	public final void unloadUser(@NotNull Player player) {
-		String uuid = player.getUniqueId().toString();
+		this.unloadUser(player.getUniqueId().toString());
+	}
+	
+	public final void unloadUser(@NotNull String uuid) {
 		@Nullable U user = this.activeUsers.get(uuid);
 		if (user == null) return;
 		
 		this.onUserUnload(user);
+		
+		EngineUserUnloadEvent<P, U> event = new EngineUserUnloadEvent<>(plugin, user);
+		plugin.getPluginManager().callEvent(event);
 		
 		user.setLastOnline(System.currentTimeMillis());
 		
@@ -204,10 +222,12 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 		this.activeUsers.remove(uuid);
 	}
 	
+	@Deprecated
 	protected void onUserUnload(@NotNull U user) {
 		
 	}
 	
+	@Deprecated
 	protected void onUserLoad(@NotNull U user) {
 		
 	}
@@ -233,32 +253,43 @@ public abstract class IUserManager<P extends NexDataPlugin<P, U>, U extends IAbs
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onUserLogin(AsyncPlayerPreLoginEvent e) {
-		if (e.getLoginResult() == Result.ALLOWED) {
-			//plugin.info("0. Process data for: " + e.getName());
-			if (!this.plugin.getData().isUserExists(e.getUniqueId().toString(), true)) {
-				//plugin.info("0.1: Data not found, let create on join " + e.getName());
-				this.toCreate.add(e.getUniqueId());
-				return;
-			}
-			//plugin.info("0.2 Data contains, lets load: " + e.getName());
-			this.getOrLoadUser(e.getUniqueId().toString(), true);
+		if (e.getLoginResult() != Result.ALLOWED) return;
+		
+		// For new players, prepare the UserManager to create new data on PlayerJoinEvent.
+		if (!this.plugin.getData().isUserExists(e.getUniqueId().toString(), true)) {
+			this.toCreate.add(e.getUniqueId());
+			return;
 		}
+		
+		// For old players, load the user data from the database in async mode.
+		this.getOrLoadUser(e.getUniqueId().toString(), true);
 	}
 	
 	@EventHandler(priority = EventPriority.NORMAL)
 	public void onUserJoin(PlayerJoinEvent e) {
 		Player player = e.getPlayer();
 		
-		//plugin.info("1. Pass join event: " + player.getName());
+		// Добавляем игрока в джойн лист для дальнейших проверок.
 		this.isPassJoin.add(player.getUniqueId());
-		if (!this.isLoaded(player) && !this.toCreate.contains(player.getUniqueId())) return;
-		//plugin.info("2. Not loaded/created: " + player.getName());
 		
+		// Если игрок до сих пор не был загружен из БД и при этом запись о нем есть в базе,
+		// мы выходим из метода, оставляя его в "джойн" листе, таким образом
+		// при завершении загрузки из БД, в методе getOrLoadUser менеджер увидит
+		// его и загрузит в память с вызовом кастомного ивента.
+		if (!this.isLoaded(player) && !this.toCreate.contains(player.getUniqueId())) return;
+		
+		// Так как при загрузке данных в асихнронном режиме мы не можем получить объект игрока,
+		// то мы получаем уже загруженные его данные здесь для вызова кастомного ивента.
+		// Либо здесь же создаются новые данные если игрока не было в базе.
 		@Nullable U user = this.getOrLoadUser(player);
 		if (user == null) return;
 		
-		//plugin.info("3. Created/loaded: " + player.getName());
+		
 		this.onUserLoad(user);
+		// Call custom UserLoad event.
+		EngineUserLoadEvent<P, U> event = new EngineUserLoadEvent<>(plugin, user);
+		plugin.getPluginManager().callEvent(event);
+		
 		this.isPassJoin.remove(user.getUUID());
 	}
 	

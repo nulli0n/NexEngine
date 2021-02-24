@@ -414,11 +414,11 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		return this.userSlotRefer.computeIfAbsent(player.getName(), map -> new HashMap<>());
 	}
 	
-	protected final void clearUserCache(@NotNull Player player) {
+	protected final boolean clearUserCache(@NotNull Player player) {
 		String key = player.getName();
 		if (this.LOCKED_CACHE.contains(key)) {
 			//System.out.println("Cache locked...");
-			return;
+			return false;
 		}
 		
 		//System.out.println("Cache cleared!");
@@ -432,6 +432,11 @@ public abstract class NGUI <P extends NexPlugin<P>> extends IListener<P> impleme
 		this.userSlotRefer.remove(key);
 		this.userPage.remove(key);
 		this.viewers.remove(player);
+		return true;
+	}
+	
+	protected final boolean isCacheLocked(@NotNull Player player) {
+		return this.LOCKED_CACHE.contains(player.getName());
 	}
 	
 	protected final boolean isPlayerInv(int slot) {

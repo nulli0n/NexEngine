@@ -361,7 +361,11 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
 	}
 	
 	@Nullable
-	public final EditorHandler<P> getEditorHandler() {
+	public EditorHandler<P> getEditorHandler() {
 		return this.editorHandler;
+	}
+	
+	public ClassLoader getClazzLoader() {
+		return this.getClassLoader();
 	}
 }

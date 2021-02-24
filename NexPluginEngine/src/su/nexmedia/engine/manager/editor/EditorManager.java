@@ -4,6 +4,7 @@ import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -69,7 +70,11 @@ public class EditorManager {
 		text.send(player);
 	}
 
-	public static void sendClickableTips(@NotNull Player player, @NotNull Collection<String> items) {
+	public static void sendClickableTips(@NotNull Player player, @NotNull Collection<String> items2) {
+		Collection<String> items = items2.stream().sorted((s1, s2) -> {
+			return s1.compareTo(s2);
+		}).collect(Collectors.toList());
+		
 		StringBuilder builder = new StringBuilder();
 		items.forEach(pz -> {
 			if (builder.length() > 0) builder.append(" &7| ");

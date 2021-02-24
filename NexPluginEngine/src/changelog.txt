@@ -1,5 +1,7 @@
 by: NightExpress, Integral-7, be2ON, MadNessa, Metal, lPariahl, Network
 
+====================[v2.0.5  - 23/02/2020]====================
+- External modules support.
 ====================[v2.0.4.2  - 29/01/2020]====================
 - Fixed some GUI glitches.
 ====================[v2.0.3  - 09/11/2020]====================

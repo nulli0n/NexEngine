@@ -107,13 +107,13 @@ public abstract class IModule<P extends NexPlugin<P>> extends IListener<P> imple
 	}
 	
 	@NotNull
-	public final String getPath() {
+	public String getPath() {
 		return CoreConfig.MODULES_PATH_INTERNAL + this.getId() + "/";
 	}
 	
 	@NotNull
 	public final String getFullPath() {
-		return plugin.getDataFolder() + CoreConfig.MODULES_PATH_INTERNAL + this.getId() + "/";
+		return plugin.getDataFolder() + this.getPath();
 	}
 	
 	@NotNull

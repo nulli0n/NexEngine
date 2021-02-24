@@ -1,6 +1,7 @@
 package su.nexmedia.engine.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -101,6 +102,30 @@ public class StringUT {
 	@NotNull
 	public static Set<String> color(@NotNull Set<String> list) {
 		return new HashSet<>(StringUT.color(new ArrayList<>(list)));
+	}
+	
+	@NotNull
+	public static List<String> replace(@NotNull List<String> orig, @NotNull String placeholder, boolean keep, String... replacer) {
+		return StringUT.replace(orig, placeholder, keep, Arrays.asList(replacer));
+	}
+	
+	@NotNull
+	public static List<String> replace(@NotNull List<String> orig, @NotNull String placeholder, boolean keep, List<String> replacer) {
+		List<String> replaced = new ArrayList<>();
+		for (String line : orig) {
+			if (line.contains(placeholder)) {
+				if (!keep) {
+					replaced.addAll(replacer);
+				}
+				else {
+					replacer.forEach(lineRep -> replaced.add(line.replace(placeholder, lineRep)));
+				}
+				continue;
+			}
+			replaced.add(line);
+		}
+		
+		return replaced;
 	}
 	
     public static double getDouble(@NotNull String input, double def) {
