@@ -1,49 +1,44 @@
 package su.nexmedia.engine.utils.craft;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.FurnaceRecipe;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
-import org.bukkit.inventory.RecipeChoice;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
-import org.bukkit.material.MaterialData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import su.nexmedia.engine.NexPlugin;
-import su.nexmedia.engine.utils.craft.objects.IAbstractRecipe;
-import su.nexmedia.engine.utils.craft.objects.NCraftRecipe;
-import su.nexmedia.engine.utils.craft.objects.NFurnaceRecipe;
+import su.nexmedia.engine.NexEngine;
+import su.nexmedia.engine.manager.api.Loadable;
+import su.nexmedia.engine.utils.craft.api.IAbstractRecipe;
 
-@SuppressWarnings("deprecation")
-public class CraftManager<P extends NexPlugin<P>> {
+public class CraftManager implements Loadable {
 	
-	@NotNull protected P plugin;
-	protected String pluginKey;
+	private NexEngine plugin;
+	private Set<NamespacedKey> registered;
 	
-	public CraftManager(@NotNull P plugin) {
-		this.plugin = plugin;
-		this.pluginKey = new NamespacedKey(plugin, "dummy").getNamespace();
+	public CraftManager(@NotNull NexEngine engine) {
+		this.plugin = engine;
 	}
 	
+	@Override
+	public void setup() {
+		this.registered = new HashSet<>();
+	}
+
+	@Override
+	public void shutdown() {
+		this.unregisterAll();
+		this.registered.clear();
+	}
+
 	public boolean register(@NotNull IAbstractRecipe recipe) {
-		Recipe bukkitRecipe = null;
-		if (recipe instanceof NCraftRecipe) {
-			bukkitRecipe = this.getRecipe((NCraftRecipe) recipe);
-		}
-		else if (recipe instanceof NFurnaceRecipe) {
-			bukkitRecipe = this.getRecipe((NFurnaceRecipe) recipe);
-		}
-		
-		if (bukkitRecipe == null) {
-			this.plugin.warn("Could not register recipe '" + recipe.getId() + "': No recipe handler found.");
-			return false;
-		}
-		
+		Recipe bukkitRecipe = recipe.getRecipe();
 		try {
 			if (!this.plugin.getServer().addRecipe(bukkitRecipe)) {
 				this.plugin.error("Could not register recipe: '" + recipe.getId() + "': Unknown reason.");
@@ -56,25 +51,25 @@ public class CraftManager<P extends NexPlugin<P>> {
 			return false;
 		}
 		
-		this.discoverRecipe(recipe.getRecipeKey(this.plugin));
+		this.discoverRecipe(recipe.getKey());
 		this.plugin.info("Recipe registered: '" + recipe.getId() + "' !");
 		return true;
 	}
 	
-	private void discoverRecipe(@NotNull NamespacedKey key) {
-		for (Player p : plugin.getServer().getOnlinePlayers()) {
-			if (p == null) continue;
+	public void discoverRecipe(@NotNull NamespacedKey key) {
+		for (Player player : plugin.getServer().getOnlinePlayers()) {
+			if (player == null) continue;
 			
-			p.discoverRecipe(key);
+			player.discoverRecipe(key);
 			//this.plugin.info("Recipe undiscover for " + p.getName() + ": " + b + " (" + key.getKey() + ")");
 		}
 	}
 	
 	private void undiscoverRecipe(@NotNull NamespacedKey key) {
-		for (Player p : plugin.getServer().getOnlinePlayers()) {
-			if (p == null) continue;
+		for (Player player : plugin.getServer().getOnlinePlayers()) {
+			if (player == null) continue;
 			
-			p.undiscoverRecipe(key);
+			player.undiscoverRecipe(key);
 			//this.plugin.info("Recipe undiscover for " + p.getName() + ": " + b + " (" + key.getKey() + ")");
 		}
 	}
@@ -84,10 +79,10 @@ public class CraftManager<P extends NexPlugin<P>> {
 		while (iter.hasNext()) {
 			Recipe recipe = iter.next();
 			NamespacedKey recipeKey = getRecipeKey(recipe);
-			if (recipeKey != null && recipeKey.getNamespace().equals(this.pluginKey)) {
+			if (recipeKey != null && this.registered.remove(recipeKey)) {
 				this.undiscoverRecipe(recipeKey);
-				iter.remove();
 				this.plugin.info("Recipe unregistered: '" + recipeKey.getKey() + "' !");
+				iter.remove();
 			}
 		}
 	}
@@ -102,89 +97,24 @@ public class CraftManager<P extends NexPlugin<P>> {
 		while (iter.hasNext()) {
 			Recipe recipe = iter.next();
 			NamespacedKey key = getRecipeKey(recipe);
-			if (key != null && key.getNamespace().equals(this.pluginKey) && key.getKey().endsWith(id)) {
+			if (key != null && key.getKey().endsWith(id) && this.registered.remove(key)) {
 				this.undiscoverRecipe(key);
-				iter.remove();
 				this.plugin.info("Recipe unregistered: '" + id + "' !");
+				iter.remove();
 			}
-		}
-	}
-
-	@NotNull
-	private Recipe getRecipe(@NotNull NCraftRecipe recipe) {
-		ItemStack result = recipe.getResult();
-		NamespacedKey key = recipe.getRecipeKey(this.plugin);
-		ItemStack[] ings = recipe.getIngredients();
-		
-		if (recipe.isShaped()) {
-			char[] ziga = new char[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'};
-			
-			ShapedRecipe sr = new ShapedRecipe(key, result);
-			sr.shape(recipe.getShape());
-			
-			for (int i = 0; i < ings.length; i++) {
-				char c = ziga[i];
-				ItemStack ing = ings[i];
-				if (ing.hasItemMeta()) {
-					sr.setIngredient(c, new RecipeChoice.ExactChoice(ing));
-				}
-				else {
-					//if (ing.getData() != null) {
-					//	sr.setIngredient(c, ing.getData());
-					//}
-					//else {
-						sr.setIngredient(c, ing.getType());
-					//}
-				}
-			}
-			return sr;
-		}
-		else {
-			ShapelessRecipe sr = new ShapelessRecipe(key, result);
-			for (ItemStack ing : ings) {
-				if (ing.hasItemMeta()) {
-					sr.addIngredient(new RecipeChoice.ExactChoice(ing));
-				}
-				else {
-					MaterialData data = ing.getData();
-					if (data != null) {
-						sr.addIngredient(data);
-					}
-					else {
-						sr.addIngredient(ing.getType());
-					}
-				}
-			}
-			return sr;
-		}
-	}
-	
-	@NotNull
-	private Recipe getRecipe(@NotNull NFurnaceRecipe recipe) {
-		NamespacedKey key = recipe.getRecipeKey(this.plugin);
-		ItemStack input = recipe.getInput();
-		ItemStack result = recipe.getResult();
-		float exp = recipe.getExp();
-		int time = recipe.getTime();
-		
-		if (input.hasItemMeta()) {
-			return new FurnaceRecipe(key, result, new RecipeChoice.ExactChoice(input), exp, time);
-		}
-		else {
-			return new FurnaceRecipe(key, result, input.getType(), exp, time);
 		}
 	}
 	
 	@Nullable
-	private static NamespacedKey getRecipeKey(@NotNull Recipe r) {
-		if (r instanceof ShapedRecipe) {
-			return (((ShapedRecipe)r).getKey());
+	public static NamespacedKey getRecipeKey(@NotNull Recipe recipe) {
+		if (recipe instanceof ShapedRecipe) {
+			return (((ShapedRecipe)recipe).getKey());
 		}
-		else if (r instanceof ShapelessRecipe) {
-			return (((ShapelessRecipe)r).getKey());
+		else if (recipe instanceof ShapelessRecipe) {
+			return (((ShapelessRecipe)recipe).getKey());
 		}
-		else if (r instanceof FurnaceRecipe) {
-			return (((FurnaceRecipe)r).getKey());
+		else if (recipe instanceof FurnaceRecipe) {
+			return (((FurnaceRecipe)recipe).getKey());
 		}
 		return null;
 	}

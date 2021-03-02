@@ -27,6 +27,7 @@ public class MsgUT {
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(msg));
     }
     
+    @Deprecated
     public static void sendTitles(@NotNull Player player, @NotNull String title, @NotNull String subtitle, int fadeIn, int stay, int fadeOut) {
         player.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
     }

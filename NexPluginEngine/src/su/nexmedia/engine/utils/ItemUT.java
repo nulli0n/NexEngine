@@ -55,7 +55,7 @@ public class ItemUT {
 	}
 	
 	public static int addToLore(@NotNull List<String> lore, int pos, @NotNull String value) {
-		if (pos >= lore.size()) {
+		if (pos >= lore.size() || pos < 0) {
 			lore.add(value);
 		}
 		else {

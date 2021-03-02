@@ -88,12 +88,12 @@ public class EditorManager {
 			word.execCmd(pz);
 		});
 		
-		ENGINE.lang().Core_Editor_Tips_Header.send(player, false);
+		ENGINE.lang().Core_Editor_Tips_Header.send(player);
 		text.send(player);
 	}
 	
 	public static void sendCommandTips(@NotNull Player player) {
-		ENGINE.lang().Core_Editor_Tips_Commands.send(player, false);
+		ENGINE.lang().Core_Editor_Tips_Commands.send(player);
 	}
 
 	public static boolean isEdit(@NotNull Player player) {
@@ -120,7 +120,7 @@ public class EditorManager {
 		ENGINE.lang().Core_Editor_Display_Edit_Format
 			.replace("%title%", title)
 			.replace("%message%", sub)
-			.title(player, 10, stay, 20);
+			.send(player);
 	}
 
 	public static void tipCustom(@NotNull Player player, @NotNull String sub) {

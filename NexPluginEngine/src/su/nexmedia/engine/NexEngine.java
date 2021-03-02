@@ -26,6 +26,7 @@ import su.nexmedia.engine.nms.NMS;
 import su.nexmedia.engine.nms.packets.PacketManager;
 import su.nexmedia.engine.utils.Reflex;
 import su.nexmedia.engine.utils.actions.ActionsManager;
+import su.nexmedia.engine.utils.craft.CraftManager;
 
 public class NexEngine extends NexPlugin<NexEngine> implements Listener {
 	
@@ -41,6 +42,7 @@ public class NexEngine extends NexPlugin<NexEngine> implements Listener {
 	PluginManager pluginManager;
 	PacketManager packetManager;
 	ActionsManager actionsManager;
+	CraftManager craftManager;
 	
 	VaultHK hookVault;
 	CitizensHK hookCitizens;
@@ -75,6 +77,9 @@ public class NexEngine extends NexPlugin<NexEngine> implements Listener {
 		
 		this.actionsManager = new ActionsManager(this);
 		this.actionsManager.setup();
+		
+		this.craftManager = new CraftManager(this);
+		this.craftManager.setup();
 		
 		return true;
 	}
@@ -114,6 +119,10 @@ public class NexEngine extends NexPlugin<NexEngine> implements Listener {
 		}
 		if (this.hookManager != null) {
 			this.hookManager.shutdown();
+		}
+		if (this.craftManager != null) {
+			this.craftManager.shutdown();
+			this.craftManager = null;
 		}
 		EditorManager.shutdown();
 	}

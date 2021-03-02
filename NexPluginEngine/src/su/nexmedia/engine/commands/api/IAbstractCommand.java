@@ -94,28 +94,28 @@ public abstract class IAbstractCommand<P extends NexPlugin<P>> {
 			.replace("%cmd%", subLabel)
 			.replace("  ", " ")
 			.replace("%label%", mainLabel)
-			.send(sender, true);
+			.send(sender);
 	}
 	
 	protected final void errPerm(@NotNull CommandSender sender) {
-		plugin.lang().Error_NoPerm.send(sender, true);
+		plugin.lang().Error_NoPerm.send(sender);
 	}
 	
 	protected final void errItem(@NotNull CommandSender sender) {
-		plugin.lang().Error_NoItem.send(sender, true);
+		plugin.lang().Error_NoItem.send(sender);
 	}
 	
 	protected final void errPlayer(@NotNull CommandSender sender) {
-		plugin.lang().Error_NoPlayer.send(sender, true);
+		plugin.lang().Error_NoPlayer.send(sender);
 	}
 	
 	protected final void errSender(@NotNull CommandSender sender) {
-		plugin.lang().Error_Sender.send(sender, true);
+		plugin.lang().Error_Sender.send(sender);
 	}
 	
 	protected final void errType(@NotNull CommandSender sender, @NotNull Class<?> clazz) {
 		plugin.lang().Error_Type
-		.replace("%types%", CollectionsUT.getEnums(clazz)).send(sender, true);
+		.replace("%types%", CollectionsUT.getEnums(clazz)).send(sender);
 	}
 	
     protected final double getNumD(@NotNull CommandSender sender, @NotNull String input, double def) {
@@ -131,7 +131,7 @@ public abstract class IAbstractCommand<P extends NexPlugin<P>> {
             return amount;
         }
         catch (NumberFormatException ex) {
-        	plugin.lang().Error_Number.replace("%num%", input).send(sender, true);
+        	plugin.lang().Error_Number.replace("%num%", input).send(sender);
             return def;
         }
     }

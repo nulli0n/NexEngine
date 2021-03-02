@@ -16,7 +16,7 @@ import su.nexmedia.engine.commands.api.IGeneralCommand;
 import su.nexmedia.engine.commands.list.MainCommand;
 import su.nexmedia.engine.config.ConfigManager;
 import su.nexmedia.engine.config.api.IConfigTemplate;
-import su.nexmedia.engine.config.api.ILangTemplate;
+import su.nexmedia.engine.core.config.CoreLang;
 import su.nexmedia.engine.hooks.HookManager;
 import su.nexmedia.engine.hooks.NHook;
 import su.nexmedia.engine.hooks.external.MythicMobsHK;
@@ -42,7 +42,6 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
 	private boolean isSpigot = true;
 	
 	protected ConfigManager<P> configManager;
-	protected CraftManager<P> craftManager;
 	protected CommandManager<P> cmdManager;
 	protected ModuleManager<P> moduleManager;
 	protected EditorHandler<P> editorHandler;
@@ -119,7 +118,7 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
 	public abstract IConfigTemplate cfg();
 	
 	@NotNull
-	public abstract ILangTemplate lang();
+	public abstract CoreLang lang();
 	
 	@Override
 	public final void info(@NotNull String msg) {
@@ -159,9 +158,6 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
 	private final void loadManagers() {
 		// Setup plugin Hooks.
 		this.registerHooks();
-		
-		// Setup CraftManager to be able manage crafts.
-		this.craftManager = new CraftManager<P>((P) this);
 		
 		// Setup ConfigManager before any other managers.
 		this.configManager = new ConfigManager<P>((P) this);
@@ -227,12 +223,6 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
 		// Unregister ALL plugin listeners.
 		this.unregisterListeners();
 		
-		// Unregister all recipes.
-		if (this.craftManager != null) {
-			this.craftManager.unregisterAll();
-			this.craftManager = null;
-		}
-		
 		// Save user data and disconnect from the database.
 		if (this instanceof NexDataPlugin) {
 			NexDataPlugin<?, ?> userData = (NexDataPlugin<?, ?>) this;
@@ -282,8 +272,8 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
 	}
 
 	@NotNull
-	public final CraftManager<P> getCraftManager() {
-		return this.craftManager;
+	public final CraftManager getCraftManager() {
+		return getEngine().craftManager;
 	}
 	
 	@NotNull

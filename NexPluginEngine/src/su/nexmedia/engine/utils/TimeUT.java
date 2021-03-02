@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.jetbrains.annotations.NotNull;
 
 import su.nexmedia.engine.NexEngine;
-import su.nexmedia.engine.config.api.ILangTemplate;
+import su.nexmedia.engine.core.config.CoreLang;
 
 public class TimeUT {
 
@@ -22,7 +22,7 @@ public class TimeUT {
 	    long minutes = TimeUnit.MILLISECONDS.toMinutes(time) % 60; 
 	    long seconds = TimeUnit.MILLISECONDS.toSeconds(time) % 60; 
 	
-	    ILangTemplate lang = ENGINE.lang();
+	    CoreLang lang = ENGINE.lang();
 	    StringBuilder str = new StringBuilder();
 	    
 	    if (days > 0) {

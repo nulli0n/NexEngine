@@ -9,7 +9,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import su.nexmedia.engine.NexPlugin;
-import su.nexmedia.engine.utils.MsgUT;
 import su.nexmedia.engine.utils.actions.actions.IActionExecutor;
 import su.nexmedia.engine.utils.actions.actions.IActionType;
 import su.nexmedia.engine.utils.actions.params.IParamResult;
@@ -47,8 +46,8 @@ public class Action_Titles extends IActionExecutor {
 		
 		for (Entity e : targets) {
 			if (e.getType() != EntityType.PLAYER) continue;
-			Player p = (Player) e;
-			MsgUT.sendTitles(p, title, subtitle, fadeIn, stay, fadeOut);
+			Player player = (Player) e;
+			player.sendTitle(title, subtitle, fadeIn, stay, fadeOut);
 		}
 	}
 

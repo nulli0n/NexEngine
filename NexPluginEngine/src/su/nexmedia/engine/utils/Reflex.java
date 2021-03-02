@@ -4,6 +4,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -70,6 +74,24 @@ public class Reflex {
 		return getClass("net.minecraft.server." + Version.CURRENT.name().toLowerCase(), name);
 	}
 	
+    @NotNull
+    public static List<Field> getFields(@NotNull Class<?> type) {
+        List<Field> result = new ArrayList<>();
+
+        Class<?> clazz = type;
+        while (clazz != null && clazz != Object.class) {
+        	if (!result.isEmpty()) {
+        		result.addAll(0, Arrays.asList(clazz.getDeclaredFields()));
+        	}
+        	else {
+        		Collections.addAll(result, clazz.getDeclaredFields());
+        	}
+        	clazz = clazz.getSuperclass();
+        }
+        
+        return result;
+    }
+	
 	@Nullable
     public static Field getField(@NotNull Class<?> clazz, @NotNull String fieldName) {
     	try {
@@ -86,22 +108,13 @@ public class Reflex {
     
 	@Nullable
     public static Object getFieldValue(@NotNull Object from, @NotNull String fieldName) {
-    	Field f;
 		try {
-			Class<?> clazz;
-			if (from instanceof Class) {
-				clazz = (Class<?>) from;
-			}
-			else {
-				clazz = from.getClass();
-			}
+			Class<?> clazz = from instanceof Class<?> ? (Class<?>) from : from.getClass();
+			Field field = getField(clazz, fieldName);
+			if (field == null) return null;
 			
-			f = getField(clazz, fieldName);
-			if (f == null) {
-				return null;
-			}
-			f.setAccessible(true);
-			return f.get(from);
+			field.setAccessible(true);
+			return field.get(from);
 		} 
 		catch (IllegalAccessException e) {
 			e.printStackTrace();
@@ -111,28 +124,15 @@ public class Reflex {
     }
     
     public static boolean setFieldValue(@NotNull Object of, @NotNull String fieldName, @Nullable Object value) {
-    	Field f;
-		try {
-			Class<?> clazz;
+    	try {
 			boolean isStatic = of instanceof Class;
-			if (isStatic) {
-				clazz = (Class<?>) of;
-			}
-			else {
-				clazz = of.getClass();
-			}
-			f = getField(clazz, fieldName);
-			if (f == null) {
-				return false;
-			}
+			Class<?> clazz = isStatic ? (Class<?>) of : of.getClass();
+
+			Field field = getField(clazz, fieldName);
+			if (field == null) return false;
 			
-			f.setAccessible(true);
-			if (isStatic) {
-				f.set(null, value);
-			}
-			else {
-				f.set(of, value);
-			}
+			field.setAccessible(true);
+			field.set(isStatic ? null : of, value);
 			return true;
 		}
 		catch (IllegalAccessException e) {

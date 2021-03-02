@@ -42,8 +42,8 @@ import su.nexmedia.engine.utils.LocUT;
 import su.nexmedia.engine.utils.StringUT;
 import su.nexmedia.engine.utils.actions.ActionManipulator;
 import su.nexmedia.engine.utils.constants.JStrings;
-import su.nexmedia.engine.utils.craft.objects.NCraftRecipe;
-import su.nexmedia.engine.utils.craft.objects.NFurnaceRecipe;
+import su.nexmedia.engine.utils.craft.api.ICraftRecipe;
+import su.nexmedia.engine.utils.craft.api.IFurnaceRecipe;
 import su.nexmedia.engine.utils.random.Rnd;
 
 public class JYML extends YamlConfiguration {
@@ -479,7 +479,7 @@ public class JYML extends YamlConfiguration {
 	// ----------------------------------------- //
 	
 	@Nullable
-	public NCraftRecipe getCraftRecipe(@NotNull String path) {
+	public ICraftRecipe getCraftRecipe(@NotNull NexPlugin<?> plugin, @NotNull String path) {
 		if (!path.endsWith(".")) path += ".";
 		
 		String id = this.getString(path + "id", file.getName().replace(".yml", ""));
@@ -489,7 +489,7 @@ public class JYML extends YamlConfiguration {
 			return null;
 		}
 		
-		NCraftRecipe recipe = new NCraftRecipe(id, result, shape);
+		ICraftRecipe recipe = new ICraftRecipe(plugin, id, result, shape);
 		int ingCount = 0;
 		for (String s : this.getSection(path + "ingredients")) {
 			String path2 = path + "ingredients." + s;
@@ -502,7 +502,7 @@ public class JYML extends YamlConfiguration {
 		return recipe;
 	}
 	
-	public void setRecipe(@NotNull String path, @Nullable NCraftRecipe recipe) {
+	public void setRecipe(@NotNull String path, @Nullable ICraftRecipe recipe) {
 		if (!path.endsWith(".")) path += ".";
 		if (recipe == null) {
 			if (path.endsWith(".")) path = path.substring(0, path.length() - 1);
@@ -523,7 +523,7 @@ public class JYML extends YamlConfiguration {
 	}
 	
 	@Nullable
-	public NFurnaceRecipe getFurnaceRecipe(@NotNull String path) {
+	public IFurnaceRecipe getFurnaceRecipe(@NotNull NexPlugin<?> plugin, @NotNull String path) {
 		if (!path.endsWith(".")) path += ".";
 		
 		String id = this.getString(path + "id", file.getName().replace(".yml", ""));
@@ -535,13 +535,13 @@ public class JYML extends YamlConfiguration {
 		float exp = (float) this.getDouble(path + "exp");
 		double time = this.getDouble(path + "time");
 		
-		NFurnaceRecipe recipe = new NFurnaceRecipe(id, result, exp, time);
+		IFurnaceRecipe recipe = new IFurnaceRecipe(plugin, id, result, exp, time);
 		recipe.addIngredient(input);
 		
 		return recipe;
 	}
 	
-	public void setRecipe(@NotNull String path, @Nullable NFurnaceRecipe recipe) {
+	public void setRecipe(@NotNull String path, @Nullable IFurnaceRecipe recipe) {
 		if (!path.endsWith(".")) path += ".";
 		if (recipe == null) {
 			if (path.endsWith(".")) path = path.substring(0, path.length() - 1);

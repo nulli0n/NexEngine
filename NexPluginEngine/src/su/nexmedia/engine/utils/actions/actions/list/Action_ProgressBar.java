@@ -11,7 +11,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import su.nexmedia.engine.NexPlugin;
-import su.nexmedia.engine.utils.MsgUT;
 import su.nexmedia.engine.utils.StringUT;
 import su.nexmedia.engine.utils.actions.actions.IActionExecutor;
 import su.nexmedia.engine.utils.actions.actions.IActionType;
@@ -121,7 +120,7 @@ public class Action_ProgressBar extends IActionExecutor {
 			kist = sb.toString();
 			
 			for (Player pl : players) {
-				MsgUT.sendTitles(pl, title, kist, 0, step, 20);
+				pl.sendTitle(title, kist, 0, step, 20);
 			}
 	    }
 	}

@@ -32,6 +32,6 @@ public class ReloadCommand<P extends NexPlugin<P>> extends ISubCommand<P> {
 	@Override
 	public void perform(@NotNull CommandSender sender, String label, @NotNull String[] args) {
 		plugin.reload();
-        plugin.lang().Core_Command_Reload_Done.send(sender, true);
+        plugin.lang().Core_Command_Reload_Done.send(sender);
 	}
 }
