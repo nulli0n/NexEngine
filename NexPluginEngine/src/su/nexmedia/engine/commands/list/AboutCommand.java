@@ -13,37 +13,35 @@ import su.nexmedia.engine.utils.StringUT;
 
 public class AboutCommand<P extends NexPlugin<P>> extends ISubCommand<P> {
 
-	public AboutCommand(@NotNull P plugin) {
-		super(plugin, new String[]{"about"});
-	}
-	
-	@Override
-	@NotNull
-	public String usage() {
-		return "";
-	}
-	
-	@Override
-	@NotNull
-	public String description() {
-		return plugin.lang().Core_Command_About_Desc.getMsg();
-	}
+    public AboutCommand(@NotNull P plugin) {
+        super(plugin, new String[] { "about" });
+    }
 
-	@Override
-	public boolean playersOnly() {
-		return false;
-	}
+    @Override
+    @NotNull
+    public String usage() {
+        return "";
+    }
 
-	@Override
-	public void perform(@NotNull CommandSender sender, String label, @NotNull String[] args) {
-		List<String> info = StringUT.color(Arrays.asList(
-			"&7",
-			"&e" + plugin.getName() + " &6v" + plugin.getDescription().getVersion() + " &ecreated by &6" + plugin.getAuthor(),
-			"&eType &6/" + plugin.getLabel() + " help&e to list plugin commands.",
-			"&7",
-			"&2Powered by &a&l" + NexEngine.get().getName() + "&2, © 2019-2020 &a" + NexPlugin.TM
-		));
-		
-		info.forEach(line -> sender.sendMessage(line));
-	}
+    @Override
+    @NotNull
+    public String description() {
+        return plugin.lang().Core_Command_About_Desc.getMsg();
+    }
+
+    @Override
+    public boolean playersOnly() {
+        return false;
+    }
+
+    @Override
+    public void perform(@NotNull CommandSender sender, String label, @NotNull String[] args) {
+        List<String> info = StringUT.color(Arrays.asList("&7",
+                "&e" + plugin.getName() + " &6v" + plugin.getDescription().getVersion() + " &ecreated by &6"
+                        + plugin.getAuthor(),
+                "&eType &6/" + plugin.getLabel() + " help&e to list plugin commands.", "&7",
+                "&2Powered by &a&l" + NexEngine.get().getName() + "&2, © 2019-2020 &a" + NexPlugin.TM));
+
+        info.forEach(line -> sender.sendMessage(line));
+    }
 }

@@ -7,5 +7,5 @@ import org.jetbrains.annotations.NotNull;
 
 public interface IAutoValidated {
 
-	public void autoValidate(@NotNull Entity exe, @NotNull Set<Entity> targets, @NotNull IParamValue val);
+    public void autoValidate(@NotNull Entity exe, @NotNull Set<Entity> targets, @NotNull IParamValue val);
 }

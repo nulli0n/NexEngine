@@ -1,6 +1,6 @@
-by: NightExpress, Integral-7, be2ON, MadNessa, Metal, lPariahl, Network
-
-====================[v2.0.6 - 01/03/2020]====================
+====================[v2.0.7 - 28/04/2021]====================
+- Various fixes & improvements.
+====================[v2.0.6 - 01/03/2021]====================
 - Lang API improved:
 -- ILangMsg class is independed now.
 -- ILangMsg now accepts custom parameters to define message type and settings.
@@ -9,9 +9,9 @@ by: NightExpress, Integral-7, be2ON, MadNessa, Metal, lPariahl, Network
 -- Added support for custom user placeholders.
 -- Removed outdated and useless methods.
 - CraftManager is global now.
-====================[v2.0.5 - 23/02/2020]====================
+====================[v2.0.5 - 23/02/2021]====================
 - External modules support.
-====================[v2.0.4.2 - 29/01/2020]====================
+====================[v2.0.4.2 - 29/01/2021]====================
 - Fixed some GUI glitches.
 ====================[v2.0.3 - 09/11/2020]====================
 - Improved IUserManager - now async data load.

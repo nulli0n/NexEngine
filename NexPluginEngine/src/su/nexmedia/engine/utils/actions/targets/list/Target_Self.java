@@ -14,26 +14,26 @@ import su.nexmedia.engine.utils.actions.targets.ITargetType;
 
 public class Target_Self extends ITargetSelector {
 
-	public Target_Self(@NotNull NexPlugin<?> plugin) {
-		super(plugin, ITargetType.SELF);
-	}
+    public Target_Self(@NotNull NexPlugin<?> plugin) {
+        super(plugin, ITargetType.SELF);
+    }
 
-	@Override
-	@NotNull
-	public List<String> getDescription() {
-		return plugin.lang().Core_Editor_Actions_TargetSelector_Self_Desc.asList();
-	}
-	
-	@Override
-	public void registerParams() {
-		
-	}
+    @Override
+    @NotNull
+    public List<String> getDescription() {
+        return plugin.lang().Core_Editor_Actions_TargetSelector_Self_Desc.asList();
+    }
 
-	@Override
-	protected void validateTarget(Entity exe, Set<Entity> targets, IParamResult result) {
-		Set<Entity> disTargets = new HashSet<>();
-		disTargets.add(exe);
-		
-		targets.addAll(disTargets); // Add all targets from this selector
-	}
+    @Override
+    public void registerParams() {
+
+    }
+
+    @Override
+    protected void validateTarget(Entity exe, Set<Entity> targets, IParamResult result) {
+        Set<Entity> disTargets = new HashSet<>();
+        disTargets.add(exe);
+
+        targets.addAll(disTargets); // Add all targets from this selector
+    }
 }

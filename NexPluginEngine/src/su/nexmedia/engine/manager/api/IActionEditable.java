@@ -8,9 +8,9 @@ import su.nexmedia.engine.utils.actions.api.IActioned;
 
 public interface IActionEditable extends IActioned, Editable {
 
-	@NotNull
-	public IEditorActionsMain<? extends NexPlugin<?>> getEditorActions();
-	
-	@NotNull
-	public String getActionsPath();
+    @NotNull
+    public IEditorActionsMain<? extends NexPlugin<?>> getEditorActions();
+
+    @NotNull
+    public String getActionsPath();
 }

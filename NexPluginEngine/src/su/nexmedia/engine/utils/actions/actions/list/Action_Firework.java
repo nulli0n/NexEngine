@@ -15,36 +15,36 @@ import su.nexmedia.engine.utils.random.Rnd;
 
 public class Action_Firework extends IActionExecutor {
 
-	public Action_Firework(@NotNull NexPlugin<?> plugin) {
-		super(plugin, IActionType.FIREWORK);
-	}
-	
-	@Override
-	@NotNull
-	public List<String> getDescription() {
-		return plugin.lang().Core_Editor_Actions_Action_Firework_Desc.asList();
-	}
+    public Action_Firework(@NotNull NexPlugin<?> plugin) {
+        super(plugin, IActionType.FIREWORK);
+    }
 
-	@Override
-	public void registerParams() {
-		this.registerParam(IParamType.TARGET);
-	}
+    @Override
+    @NotNull
+    public List<String> getDescription() {
+        return plugin.lang().Core_Editor_Actions_Action_Firework_Desc.asList();
+    }
 
-	@Override
-	protected void execute(@NotNull Entity exe, @NotNull Set<Entity> targets, @NotNull IParamResult result) {
-		if (!targets.isEmpty()) {
-			for (Entity target : targets) {
-				Rnd.spawnRandomFirework(target.getLocation());
-			}
-		}
-		else {
-			Rnd.spawnRandomFirework(exe.getLocation());
-		}
-	}
+    @Override
+    public void registerParams() {
+        this.registerParam(IParamType.TARGET);
+    }
 
-	@Override
-	public boolean mustHaveTarget() {
-		return false;
-	}
+    @Override
+    protected void execute(@NotNull Entity exe, @NotNull Set<Entity> targets, @NotNull IParamResult result) {
+        if (!targets.isEmpty()) {
+            for (Entity target : targets) {
+                Rnd.spawnRandomFirework(target.getLocation());
+            }
+        }
+        else {
+            Rnd.spawnRandomFirework(exe.getLocation());
+        }
+    }
+
+    @Override
+    public boolean mustHaveTarget() {
+        return false;
+    }
 
 }

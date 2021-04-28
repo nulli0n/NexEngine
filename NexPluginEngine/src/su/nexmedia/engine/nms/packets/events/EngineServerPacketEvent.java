@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class EngineServerPacketEvent extends EnginePacketEvent {
 
-	public EngineServerPacketEvent(@NotNull Player reciever, @NotNull Object packet) {
-		super(reciever, packet);
-	}
+    public EngineServerPacketEvent(@NotNull Player reciever, @NotNull Object packet) {
+        super(reciever, packet);
+    }
 }

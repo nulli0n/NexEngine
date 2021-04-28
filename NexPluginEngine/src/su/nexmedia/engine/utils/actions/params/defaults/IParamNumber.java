@@ -7,13 +7,13 @@ import su.nexmedia.engine.utils.actions.params.parser.IParamParser;
 
 public class IParamNumber extends IParam {
 
-	public IParamNumber(@NotNull String key, @NotNull String flag) {
-		super(key, flag);
-	}
+    public IParamNumber(@NotNull String key, @NotNull String flag) {
+        super(key, flag);
+    }
 
-	@Override
-	@NotNull
-	public final IParamParser getParser() {
-		return IParamParser.NUMBER;
-	}
+    @Override
+    @NotNull
+    public final IParamParser getParser() {
+        return IParamParser.NUMBER;
+    }
 }

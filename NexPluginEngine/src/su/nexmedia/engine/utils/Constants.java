@@ -1,7 +1,6 @@
-package su.nexmedia.engine.utils.constants;
+package su.nexmedia.engine.utils;
 
-@Deprecated
-public class JStrings {
+public class Constants {
 
     public static final String DEFAULT = "default";
     public static final String EDITOR = "editor";
@@ -10,5 +9,4 @@ public class JStrings {
     public static final String MASK_ANY = "*";
     public static final String CONSOLE = "console";
     public static final String LINE_SPLIT = "%newline%";
-
 }

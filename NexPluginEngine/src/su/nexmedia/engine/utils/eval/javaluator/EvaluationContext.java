@@ -1,15 +1,16 @@
 package su.nexmedia.engine.utils.eval.javaluator;
 
 public interface EvaluationContext {
-    default public IllegalArgumentException getError(String msg){        
+    default public IllegalArgumentException getError(String msg) {
         return new IllegalArgumentException(msg);
     }
-    
-    default public IllegalArgumentException getError(String msg,Token tok){   
-        if(tok!=null){
+
+    default public IllegalArgumentException getError(String msg, Token tok) {
+        if (tok != null) {
             return getError(tok.appendTokenInfo(msg));
-        } else {
+        }
+        else {
             return getError(msg);
         }
-    }    
+    }
 }

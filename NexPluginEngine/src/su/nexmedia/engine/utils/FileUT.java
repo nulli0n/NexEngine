@@ -10,7 +10,7 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 public class FileUT {
-	
+
     public static void copy(@NotNull InputStream inputStream, @NotNull File file) {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(file);
@@ -26,7 +26,7 @@ public class FileUT {
             ex.printStackTrace();
         }
     }
-    
+
     public static void mkdir(@NotNull File file) {
         try {
             file.mkdir();
@@ -35,72 +35,76 @@ public class FileUT {
             ex.printStackTrace();
         }
     }
-    
+
     public static boolean create(@NotNull File file) {
-    	if (file.exists()) return false;
-    	
-    	File parent = file.getParentFile();
-    	if (parent == null) return false;
-    	
-    	parent.mkdirs();
-    	try {
-			file.createNewFile();
-		} 
-    	catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-    	return true;
+        if (file.exists())
+            return false;
+
+        File parent = file.getParentFile();
+        if (parent == null)
+            return false;
+
+        parent.mkdirs();
+        try {
+            file.createNewFile();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
-    
+
     @NotNull
-	public static List<File> getFiles(@NotNull String path, boolean deep) {
-		List<File> names = new ArrayList<>();
-		
-		File folder = new File(path);
-		File[] listOfFiles = folder.listFiles();
-		if (listOfFiles == null) return names;
-		
-		for (File file : listOfFiles) {
-			if (file.isFile()) {
-				names.add(file);
-		    }
-			else if (file.isDirectory() && deep) {
-				names.addAll(getFiles(file.getPath(), deep));
-			}
-		}
-		return names;
-	}
-	
-	@NotNull
-	public static List<File> getFolders(@NotNull String path) {
-		List<File> dirs = new ArrayList<>();
-		
-		File folder = new File(path);
-		File[] listOfFiles = folder.listFiles();
-		if (listOfFiles == null) return dirs;
-		
-		for (File f : listOfFiles) {
-			if (f.isDirectory()) {
-				dirs.add(f);
-		    }
-		}
-		
-		return dirs;
-	}
-	
-	public static boolean deleteRecursive(@NotNull String path) {
-		File dir = new File(path);
-		return dir.exists() ? deleteRecursive(dir) : false;
-	}
-	
-	public static boolean deleteRecursive(@NotNull File dir) {
-		File[] inside = dir.listFiles();
-		if (inside != null) {
-			for (File file : inside) {
-				deleteRecursive(file);
-			}
-		}
-		return dir.delete();
-	}
+    public static List<File> getFiles(@NotNull String path, boolean deep) {
+        List<File> names = new ArrayList<>();
+
+        File folder = new File(path);
+        File[] listOfFiles = folder.listFiles();
+        if (listOfFiles == null)
+            return names;
+
+        for (File file : listOfFiles) {
+            if (file.isFile()) {
+                names.add(file);
+            }
+            else if (file.isDirectory() && deep) {
+                names.addAll(getFiles(file.getPath(), deep));
+            }
+        }
+        return names;
+    }
+
+    @NotNull
+    public static List<File> getFolders(@NotNull String path) {
+        List<File> dirs = new ArrayList<>();
+
+        File folder = new File(path);
+        File[] listOfFiles = folder.listFiles();
+        if (listOfFiles == null)
+            return dirs;
+
+        for (File f : listOfFiles) {
+            if (f.isDirectory()) {
+                dirs.add(f);
+            }
+        }
+
+        return dirs;
+    }
+
+    public static boolean deleteRecursive(@NotNull String path) {
+        File dir = new File(path);
+        return dir.exists() ? deleteRecursive(dir) : false;
+    }
+
+    public static boolean deleteRecursive(@NotNull File dir) {
+        File[] inside = dir.listFiles();
+        if (inside != null) {
+            for (File file : inside) {
+                deleteRecursive(file);
+            }
+        }
+        return dir.delete();
+    }
 }

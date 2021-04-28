@@ -14,28 +14,28 @@ import su.nexmedia.engine.utils.actions.params.IParamType;
 
 public class Action_Goto extends IActionExecutor {
 
-	public Action_Goto(@NotNull NexPlugin<?> plugin) {
-		super(plugin, IActionType.GOTO);
-	}
+    public Action_Goto(@NotNull NexPlugin<?> plugin) {
+        super(plugin, IActionType.GOTO);
+    }
 
-	@Override
-	@NotNull
-	public List<String> getDescription() {
-		return plugin.lang().Core_Editor_Actions_Action_Goto_Desc.asList();
-	}
-	
-	@Override
-	public void registerParams() {
-		this.registerParam(IParamType.NAME);
-	}
+    @Override
+    @NotNull
+    public List<String> getDescription() {
+        return plugin.lang().Core_Editor_Actions_Action_Goto_Desc.asList();
+    }
 
-	@Override
-	protected void execute(@NotNull Entity exe, @NotNull Set<Entity> targets, @NotNull IParamResult result) {
-		
-	}
+    @Override
+    public void registerParams() {
+        this.registerParam(IParamType.NAME);
+    }
 
-	@Override
-	public boolean mustHaveTarget() {
-		return false;
-	}
+    @Override
+    protected void execute(@NotNull Entity exe, @NotNull Set<Entity> targets, @NotNull IParamResult result) {
+
+    }
+
+    @Override
+    public boolean mustHaveTarget() {
+        return false;
+    }
 }

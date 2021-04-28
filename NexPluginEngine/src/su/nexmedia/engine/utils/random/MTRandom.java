@@ -3,7 +3,7 @@ package su.nexmedia.engine.utils.random;
 import java.util.Random;
 
 public class MTRandom extends Random {
-	
+
     private static final long serialVersionUID = -515082678588212038L;
     private static final int UPPER_MASK = Integer.MIN_VALUE;
     private static final int LOWER_MASK = Integer.MAX_VALUE;
@@ -13,43 +13,43 @@ public class MTRandom extends Random {
     private static final int MAGIC_FACTOR1 = 1812433253;
     private static final int MAGIC_FACTOR2 = 1664525;
     private static final int MAGIC_FACTOR3 = 1566083941;
-    //private static final int MAGIC_MASK1 = -1658038656;
-    //private static final int MAGIC_MASK2 = -272236544;
+    // private static final int MAGIC_MASK1 = -1658038656;
+    // private static final int MAGIC_MASK2 = -272236544;
     private static final int MAGIC_SEED = 19650218;
     private static final long DEFAULT_SEED = 5489L;
     private transient int[] mt;
     private transient int mti;
     private transient boolean compat;
     private transient int[] ibuf;
-    
+
     public MTRandom() {
         this(false);
     }
-    
+
     public MTRandom(boolean compatible) {
         super(0L);
         this.compat = false;
         this.compat = compatible;
         this.setSeed(this.compat ? DEFAULT_SEED : System.currentTimeMillis());
     }
-    
+
     public MTRandom(long seed) {
         super(seed);
         this.compat = false;
     }
-    
+
     public MTRandom(byte[] buf) {
         super(0L);
         this.compat = false;
         this.setSeed(buf);
     }
-    
+
     public MTRandom(int[] buf) {
         super(0L);
         this.compat = false;
         this.setSeed(buf);
     }
-    
+
     private void setSeed(int seed) {
         if (this.mt == null) {
             this.mt = new int[N];
@@ -61,26 +61,26 @@ public class MTRandom extends Random {
             ++this.mti;
         }
     }
-    
+
     @Override
     public synchronized void setSeed(long seed) {
         if (this.compat) {
-            this.setSeed((int)seed);
+            this.setSeed((int) seed);
         }
         else {
             if (this.ibuf == null) {
                 this.ibuf = new int[2];
             }
-            this.ibuf[0] = (int)seed;
-            this.ibuf[1] = (int)(seed >>> 32);
+            this.ibuf[0] = (int) seed;
+            this.ibuf[1] = (int) (seed >>> 32);
             this.setSeed(this.ibuf);
         }
     }
-    
+
     public void setSeed(byte[] buf) {
         this.setSeed(pack(buf));
     }
-    
+
     public synchronized void setSeed(int[] buf) {
         int length = buf.length;
         if (length == 0) {
@@ -112,7 +112,7 @@ public class MTRandom extends Random {
         }
         this.mt[0] = UPPER_MASK;
     }
-    
+
     @Override
     protected synchronized int next(int bits) {
         if (this.mti >= N) {
@@ -137,7 +137,7 @@ public class MTRandom extends Random {
         y ^= y >>> 18;
         return y >>> 32 - bits;
     }
-    
+
     public static int[] pack(byte[] buf) {
         int blen = buf.length;
         int ilen = buf.length + 3 >>> 2;
@@ -148,12 +148,13 @@ public class MTRandom extends Random {
                 m = blen;
             }
             int k;
-            for (k = (buf[--m] & 0xFF); (m & 0x3) != 0x0; k = (k << 8 | (buf[--m] & 0xFF))) {}
+            for (k = (buf[--m] & 0xFF); (m & 0x3) != 0x0; k = (k << 8 | (buf[--m] & 0xFF))) {
+            }
             ibuf[n] = k;
         }
         return ibuf;
     }
-    
+
     static {
         MAGIC = new int[] { 0, -1727483681 };
     }

@@ -6,6 +6,6 @@ import su.nexmedia.engine.utils.actions.ActionManipulator;
 
 public interface IActioned {
 
-	@NotNull
-	public ActionManipulator getActions();
+    @NotNull
+    public ActionManipulator getActions();
 }

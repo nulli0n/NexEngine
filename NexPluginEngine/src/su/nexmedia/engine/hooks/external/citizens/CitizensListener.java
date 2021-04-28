@@ -5,7 +5,7 @@ import net.citizensnpcs.api.event.NPCRightClickEvent;
 
 public interface CitizensListener {
 
-	void onLeftClick(NPCLeftClickEvent e);
-	
-	void onRightClick(NPCRightClickEvent e);
+    void onLeftClick(NPCLeftClickEvent e);
+
+    void onRightClick(NPCRightClickEvent e);
 }

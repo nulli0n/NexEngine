@@ -6,5 +6,5 @@ import su.nexmedia.engine.config.api.JYML;
 
 public interface Saveable {
 
-	public void save(@NotNull JYML cfg);
+    public void save(@NotNull JYML cfg);
 }
