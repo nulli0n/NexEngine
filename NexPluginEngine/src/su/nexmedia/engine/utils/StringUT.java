@@ -33,19 +33,21 @@ public class StringUT {
 
     @NotNull
     public static String color(@NotNull String str) {
-        if (Version.CURRENT.isHigher(Version.V1_15_R1))
-            str = colorHex(str);
-        return ChatColor.translateAlternateColorCodes('&', colorFix(str));
+        str = ChatColor.translateAlternateColorCodes('&', colorFix(str));
+        if (Version.CURRENT.isHigher(Version.V1_15_R1)) str = colorHex(str);
+        return str;
     }
 
     /**
      * Removes multiple color codes that are 'color of color'. Example: '&a&b&cText'
      * -> '&cText'.
+     * Probably not needed anymore.
      * 
      * @param str String to fix.
      * @return A string with a proper color codes formatting.
      */
     @NotNull
+    @Deprecated
     public static String colorFix(@NotNull String str) {
         return NexEngine.get().getNMS().fixColors(str);
     }

@@ -9,6 +9,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.WitherSkeleton;
 import org.bukkit.entity.Zombie;
@@ -16,7 +17,10 @@ import org.bukkit.entity.ZombieVillager;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.projectiles.ProjectileSource;
 import org.jetbrains.annotations.NotNull;
+
+import su.nexmedia.engine.NexEngine;
 
 public class EntityUT {
 
@@ -111,5 +115,30 @@ public class EntityUT {
                 return "MHF_" + StringUT.capitalizeFully(s).replace(" ", "");
             }
         }
+    }
+    
+    @NotNull
+    public static String getName(@NotNull Entity entity) {
+        String name = NexEngine.get().lang().getEnum(entity.getType());
+        
+        if (entity instanceof Projectile) {
+            Projectile pp = (Projectile) entity;
+            ProjectileSource ps = pp.getShooter();
+            if (ps instanceof LivingEntity) {
+                entity = (LivingEntity) ps;
+            }
+        }
+        
+        if (entity instanceof Player) {
+            name = entity.getName();
+        }
+        else if (entity instanceof LivingEntity) {
+            String cName = entity.getCustomName();
+            if (cName != null) {
+                name = cName;
+            }
+        }
+        
+        return name;
     }
 }

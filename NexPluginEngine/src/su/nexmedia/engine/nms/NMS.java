@@ -24,6 +24,11 @@ public interface NMS {
 
     public void openChestAnimation(@NotNull Block chest, boolean open);
 
+    /**
+     * 
+     * @param p
+     * @param i 0 = main hand, 3 = off hand.
+     */
     public void sendAttackPacket(@NotNull Player p, int i);
 
     @NotNull
