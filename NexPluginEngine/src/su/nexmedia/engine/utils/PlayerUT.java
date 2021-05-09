@@ -160,8 +160,7 @@ public class PlayerUT {
         Inventory inventory = player.getInventory();
 
         for (ItemStack has : inventory.getContents()) {
-            if (has == null || !has.isSimilar(item))
-                continue;
+            if (has == null || !has.isSimilar(item)) continue;
 
             int hasAmount = has.getAmount();
             if (taken + hasAmount > amount) {
@@ -169,8 +168,8 @@ public class PlayerUT {
                 has.setAmount(diff);
                 return;
             }
-
-            player.getInventory().removeItem(has);
+            
+            has.setAmount(0);
             if ((taken += hasAmount) == amount) {
                 return;
             }
