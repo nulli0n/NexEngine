@@ -169,7 +169,7 @@ public class PlayerUT {
                 return;
             }
             
-            has.setAmount(0); // Properly take item from any slot.
+            has.setAmount(0);
             if ((taken += hasAmount) == amount) {
                 return;
             }
