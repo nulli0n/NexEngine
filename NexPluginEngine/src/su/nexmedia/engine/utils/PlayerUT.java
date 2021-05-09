@@ -169,7 +169,7 @@ public class PlayerUT {
                 return;
             }
             
-            has.setAmount(0);
+            has.setAmount(0); // Take item
             if ((taken += hasAmount) == amount) {
                 return;
             }
