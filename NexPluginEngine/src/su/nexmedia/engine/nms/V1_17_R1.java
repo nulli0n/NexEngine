@@ -10,13 +10,15 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Collection;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R2.inventory.CraftItemStack;
-import org.bukkit.craftbukkit.v1_16_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_17_R1.CraftServer;
+import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_17_R1.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -25,48 +27,62 @@ import org.jetbrains.annotations.Nullable;
 import com.google.common.collect.Multimap;
 
 import io.netty.channel.Channel;
-import net.minecraft.server.v1_16_R2.AttributeBase;
-import net.minecraft.server.v1_16_R2.AttributeModifier;
-import net.minecraft.server.v1_16_R2.BlockPosition;
-import net.minecraft.server.v1_16_R2.EntityPlayer;
-import net.minecraft.server.v1_16_R2.EnumItemSlot;
-import net.minecraft.server.v1_16_R2.GenericAttributes;
-import net.minecraft.server.v1_16_R2.IChatBaseComponent;
-import net.minecraft.server.v1_16_R2.Item;
-import net.minecraft.server.v1_16_R2.ItemArmor;
-import net.minecraft.server.v1_16_R2.ItemAxe;
-import net.minecraft.server.v1_16_R2.ItemSword;
-import net.minecraft.server.v1_16_R2.ItemTool;
-import net.minecraft.server.v1_16_R2.ItemTrident;
-import net.minecraft.server.v1_16_R2.NBTCompressedStreamTools;
-import net.minecraft.server.v1_16_R2.NBTTagCompound;
-import net.minecraft.server.v1_16_R2.NBTTagList;
-import net.minecraft.server.v1_16_R2.Packet;
-import net.minecraft.server.v1_16_R2.PacketPlayOutAnimation;
-import net.minecraft.server.v1_16_R2.World;
+import net.minecraft.core.BlockPosition;
+import net.minecraft.nbt.NBTCompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.network.chat.IChatBaseComponent;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.PacketPlayOutAnimation;
+import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.server.level.PlayerInteractManager;
+import net.minecraft.server.level.WorldServer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EnumItemSlot;
+import net.minecraft.world.entity.ai.attributes.AttributeBase;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.GenericAttributes;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemArmor;
+import net.minecraft.world.item.ItemAxe;
+import net.minecraft.world.item.ItemSword;
+import net.minecraft.world.item.ItemTool;
+import net.minecraft.world.item.ItemTrident;
+import net.minecraft.world.level.World;
+import su.nexmedia.engine.utils.Reflex;
 import su.nexmedia.engine.utils.random.Rnd;
 
-public class V1_16_R2 implements NMS {
+
+public class V1_17_R1 implements NMS {
 
     @Override
     @NotNull
     public Channel getChannel(@NotNull Player p) {
-        return ((CraftPlayer) p).getHandle().playerConnection.networkManager.channel;
+        return ((CraftPlayer) p).getHandle().b.a().k;
     }
 
     @Override
     public void sendPacket(@NotNull Player p, @NotNull Object packet) {
-        ((CraftPlayer) p).getHandle().playerConnection.sendPacket((Packet<?>) packet);
+        ((CraftPlayer) p).getHandle().b.sendPacket((Packet<?>) packet);
     }
 
     @Override
     public void sendAttackPacket(@NotNull Player p, int id) {
         CraftPlayer player = (CraftPlayer) p;
-        net.minecraft.server.v1_16_R2.Entity entity = (net.minecraft.server.v1_16_R2.Entity) player.getHandle();
+        Entity entity = player.getHandle();
         PacketPlayOutAnimation packet = new PacketPlayOutAnimation(entity, id);
-        player.getHandle().playerConnection.sendPacket(packet);
+        player.getHandle().b.sendPacket(packet);
     }
 
+    @Override
+    public boolean breakBlock(@NotNull Player player, @NotNull Block block) {
+        BlockPosition position = new BlockPosition(block.getX(), block.getY(), block.getZ());
+        EntityPlayer entityPlayer = ((CraftPlayer)player).getHandle();
+        PlayerInteractManager manager = entityPlayer.d;
+        return manager.breakBlock(position);
+    }
+
+    @Deprecated
     @Override
     public void openChestAnimation(@NotNull Block chest, boolean open) {
         if (chest.getState() instanceof Chest) {
@@ -86,7 +102,7 @@ public class V1_16_R2 implements NMS {
     @NotNull
     public String toJSON(@NotNull ItemStack item) {
         NBTTagCompound c = new NBTTagCompound();
-        net.minecraft.server.v1_16_R2.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+        net.minecraft.world.item.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
         c = nmsItem.save(c);
         String js = c.toString();
         if (js.length() > 32767) {
@@ -106,7 +122,7 @@ public class V1_16_R2 implements NMS {
         NBTTagList nbtTagListItems = new NBTTagList();
         NBTTagCompound nbtTagCompoundItem = new NBTTagCompound();
 
-        net.minecraft.server.v1_16_R2.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
+        net.minecraft.world.item.ItemStack nmsItem = CraftItemStack.asNMSCopy(item);
 
         nmsItem.save(nbtTagCompoundItem);
 
@@ -137,12 +153,13 @@ public class V1_16_R2 implements NMS {
             return null;
         }
 
-        net.minecraft.server.v1_16_R2.ItemStack nmsItem = net.minecraft.server.v1_16_R2.ItemStack.a(nbtTagCompoundRoot); // .createStack(nbtTagCompoundRoot);
-        ItemStack item = (ItemStack) CraftItemStack.asBukkitCopy(nmsItem);
+        net.minecraft.world.item.ItemStack nmsItem = net.minecraft.world.item.ItemStack.a(nbtTagCompoundRoot); // .createStack(nbtTagCompoundRoot);
+        ItemStack item = CraftItemStack.asBukkitCopy(nmsItem);
 
         return item;
     }
 
+    @Deprecated
     @Override
     @NotNull
     public String getNbtString(@NotNull ItemStack item) {
@@ -153,7 +170,7 @@ public class V1_16_R2 implements NMS {
     @NotNull
     public ItemStack damageItem(@NotNull ItemStack item, int amount, @Nullable Player player) {
         // CraftItemStack craftItem = (CraftItemStack) item;
-        net.minecraft.server.v1_16_R2.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
+        net.minecraft.world.item.ItemStack nmsStack = CraftItemStack.asNMSCopy(item);
 
         EntityPlayer nmsPlayer = player != null ? ((CraftPlayer) player).getHandle() : null;
         nmsStack.isDamaged(amount, Rnd.rnd, nmsPlayer);
@@ -161,6 +178,7 @@ public class V1_16_R2 implements NMS {
         return CraftItemStack.asBukkitCopy(nmsStack);
     }
 
+    @Deprecated
     @Override
     @NotNull
     public String fixColors(@NotNull String str) {
@@ -182,15 +200,15 @@ public class V1_16_R2 implements NMS {
         }
         else if (item instanceof ItemTool) {
             ItemTool tool = (ItemTool) item;
-            attMap = tool.a(EnumItemSlot.MAINHAND);
+            attMap = tool.a(EnumItemSlot.a);
         }
         else if (item instanceof ItemSword) {
             ItemSword tool = (ItemSword) item;
-            attMap = tool.a(EnumItemSlot.MAINHAND);
+            attMap = tool.a(EnumItemSlot.a);
         }
         else if (item instanceof ItemTrident) {
             ItemTrident tool = (ItemTrident) item;
-            attMap = tool.a(EnumItemSlot.MAINHAND);
+            attMap = tool.a(EnumItemSlot.a);
         }
 
         return attMap;
@@ -227,21 +245,41 @@ public class V1_16_R2 implements NMS {
 
     @Override
     public double getDefaultDamage(@NotNull ItemStack itemStack) {
-        return this.getAttributeValue(itemStack, GenericAttributes.ATTACK_DAMAGE);
+        return this.getAttributeValue(itemStack, GenericAttributes.f);
     }
 
     @Override
     public double getDefaultSpeed(@NotNull ItemStack itemStack) {
-        return this.getAttributeValue(itemStack, GenericAttributes.ATTACK_SPEED);
+        return this.getAttributeValue(itemStack, GenericAttributes.h);
     }
 
     @Override
     public double getDefaultArmor(@NotNull ItemStack itemStack) {
-        return this.getAttributeValue(itemStack, GenericAttributes.ARMOR);
+        return this.getAttributeValue(itemStack, GenericAttributes.i);
     }
 
     @Override
     public double getDefaultToughness(@NotNull ItemStack itemStack) {
-        return this.getAttributeValue(itemStack, GenericAttributes.ARMOR_TOUGHNESS);
+        return this.getAttributeValue(itemStack, GenericAttributes.j);
+    }
+
+    @Override
+    @Nullable
+    public org.bukkit.entity.@Nullable Entity getPacketEntity(@NotNull Object packet, @NotNull String fieldId) {
+        Integer entityId = (Integer) Reflex.getFieldValue(packet, fieldId);
+        if (entityId == null) return null;
+
+        CraftServer server = (CraftServer) Bukkit.getServer();
+        Entity nmsEntity = null;
+        for (WorldServer worldServer : server.getServer().getWorlds()) {
+            nmsEntity = worldServer.getEntity(entityId.intValue());
+            if (nmsEntity != null) {
+                break;
+            }
+        }
+
+        if (nmsEntity == null) return null;
+
+        return Bukkit.getServer().getEntity(nmsEntity.getUniqueID());
     }
 }

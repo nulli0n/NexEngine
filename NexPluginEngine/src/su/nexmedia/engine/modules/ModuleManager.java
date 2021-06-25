@@ -141,7 +141,7 @@ public class ModuleManager<P extends NexPlugin<P>> implements Loadable {
             ClassLoader loader = URLClassLoader.newInstance(urls, plugin.getClazzLoader());
 
             while (jarEntry.hasMoreElements()) {
-                JarEntry entry = (JarEntry) jarEntry.nextElement();
+                JarEntry entry = jarEntry.nextElement();
                 if (entry.isDirectory() || !entry.getName().endsWith(".class"))
                     continue;
 

@@ -17,9 +17,7 @@ public class Evaluator {
         if (method == 1 || method == 2) {
             return javaluator(exp);
         }
-        else {
-            return internal(exp);
-        }
+        return internal(exp);
     }
 
     private static double javaluator(String exp) {

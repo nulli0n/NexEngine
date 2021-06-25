@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -240,6 +241,17 @@ public class JYML extends YamlConfiguration {
         }
         this.set(path, str.toString());
     }
+    
+    @Nullable
+    public <T extends Enum<T>> T getEnum(@NotNull String path, @NotNull Class<T> clazz) {
+        return CollectionsUT.getEnum(this.getString(path, ""), clazz);
+    }
+    
+    @NotNull
+    public <T extends Enum<T>> T getEnum(@NotNull String path, @NotNull Class<T> clazz, @NotNull T def) {
+        @Nullable T val = this.getEnum(path, clazz);
+        return val == null ? def : val;
+    }
 
     @NotNull
     public ItemStack getItem(@NotNull String path) {
@@ -282,8 +294,19 @@ public class JYML extends YamlConfiguration {
         String name = this.getString(path + "name");
         meta.setDisplayName(name != null ? StringUT.color(name) : null);
         meta.setLore(StringUT.color(this.getStringList(path + "lore")));
-
-        if (this.getBoolean(path + "enchanted")) {
+        
+        if (this.contains(path + "enchants")) {
+            for (String sKey : this.getSection(path + "enchants")) {
+                Enchantment enchantment = Enchantment.getByKey(NamespacedKey.minecraft(sKey.toLowerCase()));
+                if (enchantment == null) continue;
+                
+                int eLvl = this.getInt(path + "enchants." + sKey);
+                if (eLvl <= 1) continue;
+                
+                meta.addEnchant(enchantment, eLvl, true);
+            }
+        }
+        else if (this.getBoolean(path + "enchanted")) {
             meta.addEnchant(Enchantment.DURABILITY, 1, true);
         }
 

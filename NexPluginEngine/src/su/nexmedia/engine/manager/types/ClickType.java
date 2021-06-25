@@ -11,10 +11,8 @@ public enum ClickType {
     @NotNull
     public static ClickType from(@NotNull InventoryClickEvent e) {
         if (e.isShiftClick()) {
-            if (e.isLeftClick())
-                return SHIFT_LEFT;
-            else
-                return SHIFT_RIGHT;
+            if (e.isLeftClick()) return SHIFT_LEFT;
+            return SHIFT_RIGHT;
         }
         if (e.getClick() == org.bukkit.event.inventory.ClickType.MIDDLE) {
             return MIDDLE;
@@ -30,8 +28,6 @@ public enum ClickType {
         if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
             return shift ? ClickType.SHIFT_RIGHT : RIGHT;
         }
-        else {
-            return shift ? ClickType.SHIFT_LEFT : LEFT;
-        }
+        return shift ? ClickType.SHIFT_LEFT : LEFT;
     }
 }

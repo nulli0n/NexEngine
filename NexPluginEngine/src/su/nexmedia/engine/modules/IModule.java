@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import su.nexmedia.engine.NexPlugin;
+import su.nexmedia.engine.commands.list.HelpCommand;
 import su.nexmedia.engine.config.api.JYML;
 import su.nexmedia.engine.core.config.CoreConfig;
 import su.nexmedia.engine.manager.IListener;
@@ -11,10 +12,10 @@ import su.nexmedia.engine.manager.api.Loggable;
 
 public abstract class IModule<P extends NexPlugin<P>> extends IListener<P> implements Loggable {
 
-    private String name;
-    protected JYML cfg;
-    private boolean isFailed;
-    private boolean isLoaded;
+    private String               name;
+    protected JYML               cfg;
+    private boolean              isFailed;
+    private boolean              isLoaded;
     protected IModuleExecutor<P> moduleCommand;
 
     public IModule(@NotNull P plugin) {
@@ -29,8 +30,7 @@ public abstract class IModule<P extends NexPlugin<P>> extends IListener<P> imple
     }
 
     public void load() {
-        if (this.isLoaded())
-            return;
+        if (this.isLoaded()) return;
         this.cfg = JYML.loadOrExtract(this.plugin, this.getPath() + "settings.yml");
 
         this.registerCommands();
@@ -78,8 +78,7 @@ public abstract class IModule<P extends NexPlugin<P>> extends IListener<P> imple
     }
 
     protected final void interruptLoad() {
-        if (this.isLoaded())
-            return;
+        if (this.isLoaded()) return;
         this.isFailed = true;
     }
 
@@ -109,6 +108,10 @@ public abstract class IModule<P extends NexPlugin<P>> extends IListener<P> imple
         return this.plugin.cfg().isModuleEnabled(this);
     }
 
+    /**
+     * 
+     * @return Local sub-path to the module folder, like /modules/MODULE_ID/
+     */
     @NotNull
     public String getPath() {
         return CoreConfig.MODULES_PATH_INTERNAL + this.getId() + "/";
@@ -126,20 +129,19 @@ public abstract class IModule<P extends NexPlugin<P>> extends IListener<P> imple
 
     private void registerCommands() {
         String alias = cfg.getString("command-aliases");
-        if (alias == null)
-            return;
+        if (alias == null) return;
 
         String[] aliases = alias.split(",");
-        if (aliases.length == 0 || aliases[0].isEmpty())
-            return;
+        if (aliases.length == 0 || aliases[0].isEmpty()) return;
 
         this.moduleCommand = new IModuleExecutor<P>(this, aliases);
         this.plugin.getCommandManager().registerCommand(this.moduleCommand);
+
+        this.moduleCommand.addDefaultCommand(new HelpCommand<P>(this.plugin));
     }
 
     private void unregisterCommands() {
-        if (this.moduleCommand == null)
-            return;
+        if (this.moduleCommand == null) return;
 
         this.plugin.getCommandManager().unregisterCommand(this.moduleCommand);
         this.moduleCommand = null;

@@ -9,9 +9,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Collection;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.craftbukkit.v1_15_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_15_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
@@ -25,6 +27,7 @@ import com.google.common.collect.Multimap;
 import io.netty.channel.Channel;
 import net.minecraft.server.v1_15_R1.AttributeModifier;
 import net.minecraft.server.v1_15_R1.BlockPosition;
+import net.minecraft.server.v1_15_R1.Entity;
 import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.EnumItemSlot;
 import net.minecraft.server.v1_15_R1.GenericAttributes;
@@ -41,6 +44,8 @@ import net.minecraft.server.v1_15_R1.NBTTagList;
 import net.minecraft.server.v1_15_R1.Packet;
 import net.minecraft.server.v1_15_R1.PacketPlayOutAnimation;
 import net.minecraft.server.v1_15_R1.World;
+import net.minecraft.server.v1_15_R1.WorldServer;
+import su.nexmedia.engine.utils.Reflex;
 import su.nexmedia.engine.utils.random.Rnd;
 
 public class V1_15_R1 implements NMS {
@@ -59,11 +64,32 @@ public class V1_15_R1 implements NMS {
     @Override
     public void sendAttackPacket(@NotNull Player p, int id) {
         CraftPlayer player = (CraftPlayer) p;
-        net.minecraft.server.v1_15_R1.Entity entity = (net.minecraft.server.v1_15_R1.Entity) player.getHandle();
+        net.minecraft.server.v1_15_R1.Entity entity = player.getHandle();
         PacketPlayOutAnimation packet = new PacketPlayOutAnimation(entity, id);
         player.getHandle().playerConnection.sendPacket(packet);
     }
+    
+    @Override
+    @Nullable
+    public org.bukkit.entity.Entity getPacketEntity(@NotNull Object packet, @NotNull String fieldId) {
+        Integer entityId = (Integer) Reflex.getFieldValue(packet, fieldId);
+        if (entityId == null) return null;
 
+        CraftServer server = (CraftServer) Bukkit.getServer();
+        Entity nmsEntity = null;
+        for (WorldServer worldServer : server.getServer().getWorlds()) {
+            nmsEntity = worldServer.getEntity(entityId.intValue());
+            if (nmsEntity != null) {
+                break;
+            }
+        }
+
+        if (nmsEntity == null) return null;
+
+        return Bukkit.getServer().getEntity(nmsEntity.getUniqueID());
+    }
+
+    @Deprecated
     @Override
     public void openChestAnimation(@NotNull Block chest, boolean open) {
         if (chest.getState() instanceof Chest) {
@@ -77,6 +103,13 @@ public class V1_15_R1 implements NMS {
             // TileEntityChest tileChest = (TileEntityChest) world.getTileEntity(position);
             world.playBlockAction(position, world.getType(position).getBlock(), 1, open ? 1 : 0);
         }
+    }
+    
+    @Override
+    public boolean breakBlock(@NotNull Player player, @NotNull Block block) {
+        BlockPosition position = new BlockPosition(block.getX(), block.getY(), block.getZ());
+        EntityPlayer entityPlayer = ((CraftPlayer)player).getHandle();
+        return entityPlayer.playerInteractManager.breakBlock(position);
     }
 
     @Override
@@ -135,11 +168,12 @@ public class V1_15_R1 implements NMS {
         }
 
         net.minecraft.server.v1_15_R1.ItemStack nmsItem = net.minecraft.server.v1_15_R1.ItemStack.a(nbtTagCompoundRoot); // .createStack(nbtTagCompoundRoot);
-        ItemStack item = (ItemStack) CraftItemStack.asBukkitCopy(nmsItem);
+        ItemStack item = CraftItemStack.asBukkitCopy(nmsItem);
 
         return item;
     }
 
+    @Deprecated
     @Override
     @NotNull
     public String getNbtString(@NotNull ItemStack item) {
@@ -158,6 +192,7 @@ public class V1_15_R1 implements NMS {
         return CraftItemStack.asBukkitCopy(nmsStack);
     }
 
+    @Deprecated
     @Override
     @NotNull
     public String fixColors(@NotNull String str) {

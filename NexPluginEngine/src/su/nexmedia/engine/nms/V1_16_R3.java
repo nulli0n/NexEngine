@@ -10,9 +10,11 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Collection;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
@@ -28,6 +30,7 @@ import io.netty.channel.Channel;
 import net.minecraft.server.v1_16_R3.AttributeBase;
 import net.minecraft.server.v1_16_R3.AttributeModifier;
 import net.minecraft.server.v1_16_R3.BlockPosition;
+import net.minecraft.server.v1_16_R3.Entity;
 import net.minecraft.server.v1_16_R3.EntityPlayer;
 import net.minecraft.server.v1_16_R3.EnumItemSlot;
 import net.minecraft.server.v1_16_R3.GenericAttributes;
@@ -44,6 +47,8 @@ import net.minecraft.server.v1_16_R3.NBTTagList;
 import net.minecraft.server.v1_16_R3.Packet;
 import net.minecraft.server.v1_16_R3.PacketPlayOutAnimation;
 import net.minecraft.server.v1_16_R3.World;
+import net.minecraft.server.v1_16_R3.WorldServer;
+import su.nexmedia.engine.utils.Reflex;
 import su.nexmedia.engine.utils.random.Rnd;
 
 public class V1_16_R3 implements NMS {
@@ -62,11 +67,12 @@ public class V1_16_R3 implements NMS {
     @Override
     public void sendAttackPacket(@NotNull Player p, int id) {
         CraftPlayer player = (CraftPlayer) p;
-        net.minecraft.server.v1_16_R3.Entity entity = (net.minecraft.server.v1_16_R3.Entity) player.getHandle();
+        net.minecraft.server.v1_16_R3.Entity entity = player.getHandle();
         PacketPlayOutAnimation packet = new PacketPlayOutAnimation(entity, id);
         player.getHandle().playerConnection.sendPacket(packet);
     }
 
+    @Deprecated
     @Override
     public void openChestAnimation(@NotNull Block chest, boolean open) {
         if (chest.getState() instanceof Chest) {
@@ -80,6 +86,13 @@ public class V1_16_R3 implements NMS {
             // TileEntityChest tileChest = (TileEntityChest) world.getTileEntity(position);
             world.playBlockAction(position, world.getType(position).getBlock(), 1, open ? 1 : 0);
         }
+    }
+    
+    @Override
+    public boolean breakBlock(@NotNull Player player, @NotNull Block block) {
+        BlockPosition position = new BlockPosition(block.getX(), block.getY(), block.getZ());
+        EntityPlayer entityPlayer = ((CraftPlayer)player).getHandle();
+        return entityPlayer.playerInteractManager.breakBlock(position);
     }
 
     @Override
@@ -138,11 +151,12 @@ public class V1_16_R3 implements NMS {
         }
 
         net.minecraft.server.v1_16_R3.ItemStack nmsItem = net.minecraft.server.v1_16_R3.ItemStack.a(nbtTagCompoundRoot); // .createStack(nbtTagCompoundRoot);
-        ItemStack item = (ItemStack) CraftItemStack.asBukkitCopy(nmsItem);
+        ItemStack item = CraftItemStack.asBukkitCopy(nmsItem);
 
         return item;
     }
 
+    @Deprecated
     @Override
     @NotNull
     public String getNbtString(@NotNull ItemStack item) {
@@ -161,6 +175,7 @@ public class V1_16_R3 implements NMS {
         return CraftItemStack.asBukkitCopy(nmsStack);
     }
 
+    @Deprecated
     @Override
     @NotNull
     public String fixColors(@NotNull String str) {
@@ -243,5 +258,25 @@ public class V1_16_R3 implements NMS {
     @Override
     public double getDefaultToughness(@NotNull ItemStack itemStack) {
         return this.getAttributeValue(itemStack, GenericAttributes.ARMOR_TOUGHNESS);
+    }
+
+    @Override
+    @Nullable
+    public org.bukkit.entity.Entity getPacketEntity(@NotNull Object packet, @NotNull String fieldId) {
+        Integer entityId = (Integer) Reflex.getFieldValue(packet, fieldId);
+        if (entityId == null) return null;
+
+        CraftServer server = (CraftServer) Bukkit.getServer();
+        Entity nmsEntity = null;
+        for (WorldServer worldServer : server.getServer().getWorlds()) {
+            nmsEntity = worldServer.getEntity(entityId.intValue());
+            if (nmsEntity != null) {
+                break;
+            }
+        }
+
+        if (nmsEntity == null) return null;
+
+        return Bukkit.getServer().getEntity(nmsEntity.getUniqueID());
     }
 }

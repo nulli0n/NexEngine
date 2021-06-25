@@ -69,6 +69,11 @@ public abstract class ILangTemplate {
         return locEnum == null ? "null" : locEnum;
     }
 
+    @NotNull
+    public String getPrefix() {
+        return this.plugin.lang().Prefix.getMsgReady();
+    }
+    
     @Nullable
     public String getCustom(@NotNull String path) {
         String str = this.config.getString(path);

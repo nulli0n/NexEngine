@@ -16,7 +16,7 @@ import su.nexmedia.engine.config.api.JYML;
 import su.nexmedia.engine.utils.ClickText;
 import su.nexmedia.engine.utils.ClickText.ClickWord;
 import su.nexmedia.engine.utils.CollectionsUT;
-import su.nexmedia.engine.utils.constants.JStrings;
+import su.nexmedia.engine.utils.Constants;
 
 public class EditorManager {
 
@@ -67,7 +67,7 @@ public class EditorManager {
     public static void startEdit(@NotNull Player player, @Nullable Object o, Enum<?> type) {
         EDITOR_CACHE.put(player, new AbstractMap.SimpleEntry<>(type, o));
         ClickText text = new ClickText(ENGINE.lang().Core_Editor_Tips_Exit_Name.getMsg());
-        text.createFullPlaceholder().execCmd("/" + JStrings.EXIT)
+        text.createFullPlaceholder().execCmd("/" + Constants.EXIT)
                 .hint(ENGINE.lang().Core_Editor_Tips_Exit_Hint.getMsg());
         text.send(player);
     }

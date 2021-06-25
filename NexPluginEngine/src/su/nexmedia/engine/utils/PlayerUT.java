@@ -3,9 +3,11 @@ package su.nexmedia.engine.utils;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -143,36 +145,67 @@ public class PlayerUT {
         }
         return true;
     }
-
-    public static int countItem(@NotNull Player player, @NotNull ItemStack item) {
+    
+    public static int countItemSpace(@NotNull Player player, @NotNull ItemStack item) {
+        int space = 0;
+        int stackSize = item.getType().getMaxStackSize();
+        for (int slot = 0; slot < 36; slot++) {
+            ItemStack itemHas = player.getInventory().getItem(slot);
+            if (itemHas == null || ItemUT.isAir(itemHas)) {
+                space += stackSize;
+                continue;
+            }
+            if (itemHas.isSimilar(item)) {
+                space += (stackSize - itemHas.getAmount());
+            }
+        }
+        return space;
+    }
+    
+    public static int countItem(@NotNull Player player, @NotNull Predicate<ItemStack> predicate) {
         int userHas = 0;
         for (ItemStack itemHas : player.getInventory().getContents()) {
-            if (!ItemUT.isAir(itemHas) && itemHas.isSimilar(item)) {
+            if (!ItemUT.isAir(itemHas) && predicate.test(itemHas)) {
                 userHas += itemHas.getAmount();
             }
         }
         return userHas;
     }
 
-    public static void takeItem(@NotNull Player player, @NotNull ItemStack item, int amount) {
-        int taken = 0;
+    public static int countItem(@NotNull Player player, @NotNull ItemStack item) {
+        return countItem(player, itemHas -> item.isSimilar(itemHas));
+    }
+    
+    public static int countItem(@NotNull Player player, @NotNull Material material) {
+        return countItem(player, itemHas -> itemHas.getType() == material);
+    }
+
+    public static void takeItem(@NotNull Player player, @NotNull Predicate<ItemStack> predicate, int amount) {
+        int takenAmount = 0;
 
         Inventory inventory = player.getInventory();
+        for (ItemStack itemHas : inventory.getContents()) {
+            if (itemHas == null || !predicate.test(itemHas)) continue;
 
-        for (ItemStack has : inventory.getContents()) {
-            if (has == null || !has.isSimilar(item)) continue;
-
-            int hasAmount = has.getAmount();
-            if (taken + hasAmount > amount) {
-                int diff = (taken + hasAmount) - amount;
-                has.setAmount(diff);
+            int hasAmount = itemHas.getAmount();
+            if (takenAmount + hasAmount > amount) {
+                int diff = (takenAmount + hasAmount) - amount;
+                itemHas.setAmount(diff);
                 return;
             }
             
-            has.setAmount(0); // Take item
-            if ((taken += hasAmount) == amount) {
+            itemHas.setAmount(0); // Take item
+            if ((takenAmount += hasAmount) == amount) {
                 return;
             }
         }
+    }
+    
+    public static void takeItem(@NotNull Player player, @NotNull ItemStack item, int amount) {
+        takeItem(player, itemHas -> itemHas.isSimilar(item), amount);
+    }
+    
+    public static void takeItem(@NotNull Player player, @NotNull Material material, int amount) {
+        takeItem(player, itemHas -> itemHas.getType() == material, amount);
     }
 }

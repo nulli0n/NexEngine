@@ -20,29 +20,32 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import su.nexmedia.engine.NexPlugin;
 import su.nexmedia.engine.config.api.JYML;
 import su.nexmedia.engine.hooks.Hooks;
+import su.nexmedia.engine.utils.Constants;
 import su.nexmedia.engine.utils.actions.actions.IActionExecutor;
 import su.nexmedia.engine.utils.actions.conditions.IConditionValidator;
 import su.nexmedia.engine.utils.actions.params.IParamResult;
 import su.nexmedia.engine.utils.actions.params.IParamType;
 import su.nexmedia.engine.utils.actions.targets.ITargetSelector;
-import su.nexmedia.engine.utils.constants.JStrings;
 
 public class ActionManipulator {
 
     private NexPlugin<?> plugin;
     private Map<String, ActionSection> actions;
 
-    public ActionManipulator(@NotNull NexPlugin<?> plugin, @NotNull ActionManipulator copy) {
+    public ActionManipulator(@NotNull NexPlugin<?> plugin) {
         this.plugin = plugin;
         this.actions = new LinkedHashMap<>();
+    }
+    
+    public ActionManipulator(@NotNull NexPlugin<?> plugin, @NotNull ActionManipulator copy) {
+        this(plugin);
         for (Map.Entry<String, ActionSection> en : copy.getActions().entrySet()) {
             this.actions.put(en.getKey(), new ActionSection(en.getValue()));
         }
     }
 
     public ActionManipulator(@NotNull NexPlugin<?> plugin, @NotNull JYML cfg, @NotNull String path) {
-        this.plugin = plugin;
-        this.actions = new LinkedHashMap<>();
+        this(plugin);
 
         for (String id : cfg.getSection(path)) {
             String path2 = path + "." + id + ".";
@@ -135,7 +138,7 @@ public class ActionManipulator {
                 continue;
             }
             IParamResult result = targetSelector.getParamResult(selector);
-            String targetId = result.getParamValue(IParamType.NAME).getString(JStrings.DEFAULT);
+            String targetId = result.getParamValue(IParamType.NAME).getString(Constants.DEFAULT);
             Set<Entity> targets = new HashSet<>();
 
             targetSelector.select(exec, targets, selector);
@@ -193,11 +196,11 @@ public class ActionManipulator {
     public static boolean processConditions(@NotNull NexPlugin<?> plugin, @NotNull Entity exec,
             @NotNull List<String> condis, @NotNull Map<String, Set<Entity>> targetMap2) {
 
-        Map<String, Set<Entity>> targetMap = new HashMap<>();
-        targetMap.put(JStrings.DEFAULT, Sets.newHashSet(exec));
+        Map<String, Set<@NotNull Entity>> targetMap = new HashMap<>();
+        targetMap.put(Constants.DEFAULT, Sets.newHashSet(exec));
         targetMap2.forEach((fromKey, fromVal) -> {
             targetMap.merge(fromKey, fromVal, (old, now) -> {
-                Set<Entity> set = new HashSet<>(old);
+                Set<@NotNull Entity> set = new HashSet<>(old);
                 set.addAll(now);
                 return set;
             });

@@ -1,23 +1,41 @@
 package su.nexmedia.engine.utils;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.Locale;
 
 import org.jetbrains.annotations.NotNull;
 
 public class NumberUT {
 
-    private static final DecimalFormat NUMBER_FORMAT;
+    private static final DecimalFormat FORMAT_DECIMAL_ROUND;
+    private static final NumberFormat FORMAT_DECIMAL_ROUND_GROUP;
+    public static final NumberFormat FORMAT_GROUP;
 
     static {
-        NUMBER_FORMAT = new DecimalFormat("#.##"); // #.00 for 3.00 values
+        FORMAT_DECIMAL_ROUND = new DecimalFormat("#.##"); // #.00 for 3.00 values
+        
+        FORMAT_DECIMAL_ROUND_GROUP = DecimalFormat.getInstance(Locale.ENGLISH);
+        FORMAT_DECIMAL_ROUND_GROUP.setMinimumFractionDigits(0);
+        FORMAT_DECIMAL_ROUND_GROUP.setMaximumFractionDigits(2);
+        FORMAT_DECIMAL_ROUND_GROUP.setGroupingUsed(true);
+        
+        FORMAT_GROUP = NumberFormat.getInstance();
+        FORMAT_GROUP.setGroupingUsed(true);
     }
 
     @NotNull
     public static String format(double d) {
-        return NUMBER_FORMAT.format(d).replace(",", ".");
+        return FORMAT_DECIMAL_ROUND.format(d).replace(",", ".");
+    }
+    
+    @NotNull
+    public static String formatGroup(double value) {
+        return FORMAT_DECIMAL_ROUND_GROUP.format(value);//.replace(",", ".");
     }
 
     @NotNull
+    @Deprecated
     public static String format(double d, @NotNull String pattern) {
         DecimalFormat format = new DecimalFormat(pattern);
         return format.format(d).replace(",", ".");
@@ -27,6 +45,7 @@ public class NumberUT {
         return Double.valueOf(format(d)).doubleValue();
     }
 
+    @Deprecated
     public static double round(double d, @NotNull String pattern) {
         return Double.valueOf(format(d, pattern)).doubleValue();
     }
@@ -144,9 +163,7 @@ public class NumberUT {
         if (lastNumber > decimal) {
             return lastDecimal - decimal;
         }
-        else {
-            return lastDecimal + decimal;
-        }
+        return lastDecimal + decimal;
     }
 
     public static int[] splitIntoParts(int whole, int parts) {

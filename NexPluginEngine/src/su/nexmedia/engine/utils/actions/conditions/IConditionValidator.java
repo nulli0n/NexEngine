@@ -10,11 +10,11 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import su.nexmedia.engine.NexPlugin;
+import su.nexmedia.engine.utils.Constants;
 import su.nexmedia.engine.utils.actions.ActionManipulator;
 import su.nexmedia.engine.utils.actions.Parametized;
 import su.nexmedia.engine.utils.actions.params.IParamResult;
 import su.nexmedia.engine.utils.actions.params.IParamType;
-import su.nexmedia.engine.utils.constants.JStrings;
 
 public abstract class IConditionValidator extends Parametized {
 
@@ -65,8 +65,8 @@ public abstract class IConditionValidator extends Parametized {
         if (targets.isEmpty()) {
             // If no target was provided, but plugin has support for default target,
             // then we add them.
-            if (targetMap.containsKey(JStrings.DEFAULT)) {
-                targets.addAll(targetMap.get(JStrings.DEFAULT));
+            if (targetMap.containsKey(Constants.DEFAULT)) {
+                targets.addAll(targetMap.get(Constants.DEFAULT));
             }
             // If there is no default target and the condition must have target,
             // then action should be interrupted.

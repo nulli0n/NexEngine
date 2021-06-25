@@ -1,6 +1,7 @@
 package su.nexmedia.engine.nms;
 
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +11,9 @@ import io.netty.channel.Channel;
 
 public interface NMS {
 
+    @Nullable
+    public Entity getPacketEntity(@NotNull Object packet, @NotNull String fieldId);
+    
     @NotNull
     public String toJSON(@NotNull ItemStack item);
 
@@ -20,8 +24,10 @@ public interface NMS {
     public ItemStack fromBase64(@NotNull String data);
 
     @NotNull
+    @Deprecated
     public String getNbtString(@NotNull ItemStack item);
 
+    @Deprecated
     public void openChestAnimation(@NotNull Block chest, boolean open);
 
     /**
@@ -31,6 +37,8 @@ public interface NMS {
      */
     public void sendAttackPacket(@NotNull Player p, int i);
 
+    public boolean breakBlock(@NotNull Player player, @NotNull Block block);
+    
     @NotNull
     public Channel getChannel(@NotNull Player p);
 
@@ -40,6 +48,7 @@ public interface NMS {
     ItemStack damageItem(@NotNull ItemStack item, int amount, @Nullable Player player);
 
     @NotNull
+    @Deprecated
     String fixColors(@NotNull String str);
 
     double getDefaultDamage(@NotNull ItemStack itemStack);

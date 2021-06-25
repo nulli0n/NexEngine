@@ -18,7 +18,6 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import su.nexmedia.engine.core.Version;
-import su.nexmedia.engine.utils.constants.JStrings;
 
 /**
  * @author Fogus® Multimedia
@@ -38,7 +37,7 @@ public class ClickText {
     @NotNull
     public ClickWord createFullPlaceholder() {
         ClickWord clickWord = new ClickWord(this.text);
-        this.replacers.put(JStrings.MASK_ANY, clickWord);
+        this.replacers.put(Constants.MASK_ANY, clickWord);
         return clickWord;
     }
 
@@ -54,7 +53,7 @@ public class ClickText {
         this.builder = new ComponentBuilder("");
 
         // Support for full line the single ClickText
-        ClickWord full = this.replacers.get(JStrings.MASK_ANY);
+        ClickWord full = this.replacers.get(Constants.MASK_ANY);
         if (full != null) {
             this.builder.append(full.build());// .event(full.getClickEvent()).event(full.getHoverEvent());
             return this.builder.create();

@@ -41,7 +41,6 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
 
     private Logger logger;
     private boolean isEngine;
-    private boolean isSpigot = true;
 
     protected ConfigManager<P> configManager;
     protected CommandManager<P> cmdManager;
@@ -50,10 +49,6 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
 
     public final boolean isEngine() {
         return this.isEngine;
-    }
-
-    public final boolean isSpigot() {
-        return isSpigot;
     }
 
     @NotNull
@@ -66,14 +61,6 @@ public abstract class NexPlugin<P extends NexPlugin<P>> extends JavaPlugin imple
         long loadTook = System.currentTimeMillis();
         this.logger = this.getLogger();
         this.isEngine = this instanceof NexEngine;
-
-        if (!(this.isSpigot = this.getServer().getVersion().toLowerCase().contains("spigot"))) {
-            this.warn("============== DISCLAIMER ==============");
-            this.warn("> You're running an unknown Spigot fork.");
-            this.warn("> This plugin is designed to work on Spigot (spigotmc.org) only!");
-            this.warn("> You won't get any support for any issues unless they persist on regular Spigot.");
-            this.warn("========================================");
-        }
 
         NexEngine engine = getEngine();
         if (this.isEngine()) {

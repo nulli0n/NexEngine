@@ -458,7 +458,7 @@ public abstract class NGUI<P extends NexPlugin<P>> extends IListener<P> implemen
             actions.process(player);
         }
     }
-
+    
     protected void onClose(@NotNull Player player, @NotNull InventoryCloseEvent e) {
         if (this.getViewers().isEmpty() && this.destroyWhenNoViewers()) {
             this.clear();

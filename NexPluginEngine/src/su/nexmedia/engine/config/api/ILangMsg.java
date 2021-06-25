@@ -19,8 +19,8 @@ import su.nexmedia.engine.utils.StringUT;
 
 public class ILangMsg {
 
-    private static final Pattern PATTERN_MESSAGE = Pattern.compile("(\\{message:)+(.)+?(\\})+(.*?)(\\})?");
-    private static final String[] MESSAGE_ARGUMENTS = new String[] { "type", "prefix", "fadeIn", "stay", "fadeOut" };
+    private static final Pattern   PATTERN_MESSAGE   = Pattern.compile("(\\{message:)+(.)+?(\\})+(.*?)(\\})?");
+    private static final String[]  MESSAGE_ARGUMENTS = new String[] { "type", "prefix", "fadeIn", "stay", "fadeOut" };
     private static final Pattern[] PATTERN_ARGUMENTS = new Pattern[MESSAGE_ARGUMENTS.length];
 
     static {
@@ -30,13 +30,13 @@ public class ILangMsg {
     }
 
     private ILangTemplate template;
-    private String msgDefault;
-    private String msgColor;
-    private String path;
+    private String        msgDefault;
+    private String        msgColor;
+    private String        path;
 
-    private OutputType out = OutputType.CHAT;
-    private boolean isPrefix = true;
-    private int[] titlesTimes = new int[3];
+    private OutputType out         = OutputType.CHAT;
+    private boolean    isPrefix    = true;
+    private int[]      titlesTimes = new int[3];
 
     public ILangMsg(@NotNull ILangTemplate template, @NotNull String msg) {
         this.template = template;
@@ -77,8 +77,7 @@ public class ILangMsg {
 
     boolean setArguments(@NotNull String msg) {
         Matcher mArgs = PATTERN_MESSAGE.matcher(msg);
-        if (!mArgs.find())
-            return false;
+        if (!mArgs.find()) return false;
 
         // String with only args
         String extract = mArgs.group(0);
@@ -110,8 +109,7 @@ public class ILangMsg {
                     }
                     case "stay": {
                         this.titlesTimes[1] = StringUT.getInteger(argValue, -1);
-                        if (this.titlesTimes[1] < 0)
-                            this.titlesTimes[1] = 10000;
+                        if (this.titlesTimes[1] < 0) this.titlesTimes[1] = 10000;
                         break;
                     }
                     case "fadeOut": {
@@ -142,23 +140,19 @@ public class ILangMsg {
     @SuppressWarnings("unchecked")
     @NotNull
     public ILangMsg replace(@NotNull String var, @NotNull Object replacer) {
-        if (this.isEmpty())
-            return this;
-        if (replacer instanceof List)
-            return this.replace(var, (List<Object>) replacer);
+        if (this.isEmpty()) return this;
+        if (replacer instanceof List) return this.replace(var, (List<Object>) replacer);
 
         return this.replace(str -> str.replace(var, String.valueOf(replacer)));
     }
 
     @NotNull
     public ILangMsg replace(@NotNull String var, @NotNull List<Object> replacer) {
-        if (this.isEmpty())
-            return this;
+        if (this.isEmpty()) return this;
 
         StringBuilder builder = new StringBuilder();
         replacer.forEach(rep -> {
-            if (builder.length() > 0)
-                builder.append("\\n");
+            if (builder.length() > 0) builder.append("\\n");
             builder.append(rep.toString());
         });
 
@@ -167,8 +161,7 @@ public class ILangMsg {
 
     @NotNull
     public ILangMsg replace(@NotNull UnaryOperator<String> replacer) {
-        if (this.isEmpty())
-            return this;
+        if (this.isEmpty()) return this;
 
         ILangMsg msgCopy = new ILangMsg(this);
         msgCopy.msgColor = StringUT.color(replacer.apply(msgCopy.getMsg()));
@@ -180,22 +173,19 @@ public class ILangMsg {
     }
 
     public void broadcast() {
-        if (this.isEmpty())
-            return;
+        if (this.isEmpty()) return;
 
         for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-            if (player != null)
-                this.send(player);
+            if (player != null) this.send(player);
         }
         this.send(Bukkit.getServer().getConsoleSender());
     }
 
     public void send(@NotNull CommandSender sender) {
-        if (this.isEmpty())
-            return;
+        if (this.isEmpty()) return;
 
         if (this.out == ILangMsg.OutputType.CHAT) {
-            String prefix = isPrefix ? template.plugin.lang().Prefix.getMsgReady() : "";
+            String prefix = isPrefix ? template.getPrefix() : "";
 
             this.asList().forEach(line -> {
                 MsgUT.sendWithJSON(sender, prefix + line);
@@ -208,8 +198,7 @@ public class ILangMsg {
             }
             else if (this.out == ILangMsg.OutputType.TITLES) {
                 List<String> list = this.asList();
-                if (list.isEmpty())
-                    return;
+                if (list.isEmpty()) return;
 
                 String title = list.get(0);
                 String subtitle = list.size() > 1 ? list.get(1) : "";
@@ -221,8 +210,7 @@ public class ILangMsg {
     @NotNull
     public List<String> asList() {
         String msg = this.getMsgReady();
-        if (msg.isEmpty())
-            return Collections.emptyList();
+        if (msg.isEmpty()) return Collections.emptyList();
 
         List<String> list = new ArrayList<>();
         for (String line : msg.split("\\\\n")) {
@@ -240,8 +228,7 @@ public class ILangMsg {
     public String normalizeLines() {
         StringBuilder text = new StringBuilder("");
         for (String line : this.asList()) {
-            if (text.length() > 0)
-                text.append("\n");
+            if (text.length() > 0) text.append("\n");
             text.append(line);
         }
         return text.toString();

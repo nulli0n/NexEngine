@@ -321,6 +321,35 @@ public abstract class IDataHandler<P extends NexPlugin<P>, U extends IAbstractUs
 
         this.execute(sql.toString());
     }
+    
+    public boolean hasData(@NotNull String table, @NotNull Map<String, String> whereMap) {
+        StringBuilder sql = new StringBuilder("SELECT 1 FROM ").append(table);
+        
+        StringBuilder wheres = new StringBuilder();
+        whereMap.keySet().forEach((key) -> {
+            if (wheres.length() > 0) {
+                wheres.append(" AND ");
+            }
+            wheres.append("`" + key + "` = ?");
+        });
+        sql.append(" WHERE ");
+        sql.append(wheres.toString());
+
+        try (PreparedStatement ps = con.prepareStatement(sql.toString())) {
+            int count = 1;
+            for (String wValue : whereMap.values()) {
+                ps.setString(count++, wValue);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        }
+        catch (SQLException e) {
+            plugin.error("SQL Error!");
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     protected void deleteData(@NotNull String table, @NotNull Map<String, String> whereMap) {
 
@@ -443,14 +472,16 @@ public abstract class IDataHandler<P extends NexPlugin<P>, U extends IAbstractUs
     }
 
     @Nullable
-    public final U getUser(@NotNull String uuid, boolean isId) {
+    public final U getUser(@NotNull String nameOrId, boolean isId) {
         Map<String, String> whereMap = new HashMap<>();
-        whereMap.put(isId ? COL_USER_UUID : COL_USER_NAME, uuid);
+        whereMap.put(isId ? COL_USER_UUID : COL_USER_NAME, nameOrId);
         return this.getData(this.TABLE_USERS, whereMap, this.getFunctionToUser());
     }
 
-    public boolean isUserExists(@NotNull String uuid, boolean uid) {
-        return this.getUser(uuid, uid) != null;
+    public boolean isUserExists(@NotNull String nameOrId, boolean isId) {
+        Map<String, String> whereMap = new HashMap<>();
+        whereMap.put(isId ? COL_USER_UUID : COL_USER_NAME, nameOrId);
+        return this.hasData(this.TABLE_USERS, whereMap);
     }
 
     public void saveUser(@NotNull U user) {

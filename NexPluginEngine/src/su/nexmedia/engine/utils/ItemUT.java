@@ -29,7 +29,6 @@ import com.mojang.authlib.properties.Property;
 import me.clip.placeholderapi.PlaceholderAPI;
 import su.nexmedia.engine.NexEngine;
 import su.nexmedia.engine.config.ConfigManager;
-import su.nexmedia.engine.core.Version;
 import su.nexmedia.engine.hooks.Hooks;
 
 public class ItemUT {
@@ -39,7 +38,7 @@ public class ItemUT {
     public static final String LORE_FIX_PREFIX = "fogus_loren-";
     public static final String NAME_FIX_PREFIX = "fogus_namel-";
 
-    public static final String TAG_SPLITTER = "__x__";
+    public static final String                      TAG_SPLITTER = "__x__";
     private static final Map<String, NamespacedKey> LORE_KEYS_CACHE;
     private static final Map<String, NamespacedKey> NAME_KEYS_CACHE;
 
@@ -71,12 +70,10 @@ public class ItemUT {
 
     public static void addLore(@NotNull ItemStack item, @NotNull String id, @NotNull List<String> text, int pos) {
         ItemMeta meta = item.getItemMeta();
-        if (meta == null)
-            return;
+        if (meta == null) return;
 
         List<String> lore = meta.getLore();
-        if (lore == null)
-            lore = new ArrayList<>();
+        if (lore == null) lore = new ArrayList<>();
 
         text = StringUT.color(text);
         StringBuilder loreTag = new StringBuilder();
@@ -85,8 +82,7 @@ public class ItemUT {
         for (String line : text) {
             pos = addToLore(lore, pos, line);
 
-            if (loreTag.length() > 0)
-                loreTag.append(TAG_SPLITTER);
+            if (loreTag.length() > 0) loreTag.append(TAG_SPLITTER);
             loreTag.append(line);
         }
 
@@ -98,16 +94,13 @@ public class ItemUT {
 
     public static void delLore(@NotNull ItemStack item, @NotNull String id) {
         ItemMeta meta = item.getItemMeta();
-        if (meta == null)
-            return;
+        if (meta == null) return;
 
         List<String> lore = meta.getLore();
-        if (lore == null)
-            return;
+        if (lore == null) return;
 
         int index = getLoreIndex(item, id, 0);
-        if (index < 0)
-            return;
+        if (index < 0) return;
 
         int lastIndex = getLoreIndex(item, id, 1);
         int diff = lastIndex - index;
@@ -128,16 +121,13 @@ public class ItemUT {
 
     public static int getLoreIndex(@NotNull ItemStack item, @NotNull String id, int type) {
         String storedText = DataUT.getStringData(item, ItemUT.getLoreKey(id));
-        if (storedText == null)
-            return -1;
+        if (storedText == null) return -1;
 
         ItemMeta meta = item.getItemMeta();
-        if (meta == null)
-            return -1;
+        if (meta == null) return -1;
 
         List<String> lore = meta.getLore();
-        if (lore == null)
-            return -1;
+        if (lore == null) return -1;
 
         String[] lines = storedText.split(TAG_SPLITTER);
         String lastText = null;
@@ -162,8 +152,7 @@ public class ItemUT {
             }
         }
 
-        if (lastText == null)
-            return -1;
+        if (lastText == null) return -1;
 
         int index = lore.indexOf(lastText) + count;
 
@@ -228,16 +217,13 @@ public class ItemUT {
 
     @NotNull
     public static void addSkullTexture(@NotNull ItemStack item, @NotNull String value, @NotNull String id) {
-        if (item.getType() != Material.PLAYER_HEAD)
-            return;
+        if (item.getType() != Material.PLAYER_HEAD) return;
 
         UUID uuid = ConfigManager.getTempUUID(id);
-        if (uuid == null)
-            uuid = UUID.randomUUID();
+        if (uuid == null) uuid = UUID.randomUUID();
 
         SkullMeta meta = (SkullMeta) item.getItemMeta();
-        if (meta == null)
-            return;
+        if (meta == null) return;
 
         GameProfile profile = new GameProfile(uuid, null);
         profile.getProperties().put("textures", new Property("textures", value));
@@ -248,16 +234,13 @@ public class ItemUT {
 
     @Nullable
     public static String getSkullTexture(@NotNull ItemStack item) {
-        if (item.getType() != Material.PLAYER_HEAD)
-            return null;
+        if (item.getType() != Material.PLAYER_HEAD) return null;
 
         SkullMeta meta = (SkullMeta) item.getItemMeta();
-        if (meta == null)
-            return null;
+        if (meta == null) return null;
 
         GameProfile profile = (GameProfile) Reflex.getFieldValue(meta, "profile");
-        if (profile == null)
-            return null;
+        if (profile == null) return null;
 
         Collection<Property> properties = profile.getProperties().get("textures");
         Optional<Property> opt = properties.stream().filter(prop -> {
@@ -268,15 +251,13 @@ public class ItemUT {
     }
 
     public static void applyPlaceholderAPI(@NotNull Player player, @NotNull ItemStack item) {
-        if (!Hooks.hasPlaceholderAPI())
-            return;
+        if (!Hooks.hasPlaceholderAPI()) return;
         replace(item, str -> PlaceholderAPI.setPlaceholders(player, str));
     }
 
     public static void replace(@NotNull ItemStack item, @NotNull UnaryOperator<String> cs) {
         ItemMeta meta = item.getItemMeta();
-        if (meta == null)
-            return;
+        if (meta == null) return;
 
         String name = cs.apply(meta.hasDisplayName() ? meta.getDisplayName() : "");
         meta.setDisplayName(name);
@@ -295,15 +276,12 @@ public class ItemUT {
         item.setItemMeta(meta);
     }
 
-    public static void replaceLore(@NotNull ItemStack item, @NotNull String placeholder,
-            @NotNull List<String> replacer) {
+    public static void replaceLore(@NotNull ItemStack item, @NotNull String placeholder, @NotNull List<String> replacer) {
         ItemMeta meta = item.getItemMeta();
-        if (meta == null)
-            return;
+        if (meta == null) return;
 
         List<String> lore = meta.getLore();
-        if (lore == null)
-            return;
+        if (lore == null) return;
 
         List<String> lore2 = new ArrayList<>();
         for (String line : lore) {
@@ -325,8 +303,7 @@ public class ItemUT {
         World world = player.getWorld();
 
         for (ItemStack item : items) {
-            if (isAir(item))
-                continue;
+            if (isAir(item)) continue;
             if (inv.firstEmpty() == -1) {
                 world.dropItem(player.getLocation(), item);
             }
@@ -337,13 +314,7 @@ public class ItemUT {
     }
 
     public static boolean isAir(@Nullable ItemStack item) {
-        if (item == null)
-            return true;
-
-        if (Version.CURRENT.isHigher(Version.V1_14_R1)) {
-            return item.getType() == Material.AIR || item.getType().isAir();
-        }
-        return item.getType() == Material.AIR;
+        return item == null || item.getType() == Material.AIR || item.getType().isAir();
     }
 
     public static boolean isWeapon(@NotNull ItemStack item) {

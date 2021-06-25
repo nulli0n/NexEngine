@@ -62,8 +62,6 @@ public class IFurnaceRecipe extends IAbstractRecipe {
         if (input.hasItemMeta()) {
             return new FurnaceRecipe(key, result, new RecipeChoice.ExactChoice(input), exp, time);
         }
-        else {
-            return new FurnaceRecipe(key, result, input.getType(), exp, time);
-        }
+        return new FurnaceRecipe(key, result, input.getType(), exp, time);
     }
 }

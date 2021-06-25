@@ -13,8 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import su.nexmedia.engine.NexPlugin;
 import su.nexmedia.engine.manager.IListener;
 import su.nexmedia.engine.manager.api.gui.NGUI;
+import su.nexmedia.engine.utils.Constants;
 import su.nexmedia.engine.utils.StringUT;
-import su.nexmedia.engine.utils.constants.JStrings;
 
 public abstract class EditorHandler<P extends NexPlugin<P>> extends IListener<P> {
 
@@ -71,7 +71,7 @@ public abstract class EditorHandler<P extends NexPlugin<P>> extends IListener<P>
         e.setCancelled(true);
 
         String msg = StringUT.color(e.getMessage());
-        if (msg.equalsIgnoreCase(JStrings.EXIT)) {
+        if (msg.equalsIgnoreCase(Constants.EXIT)) {
             EditorManager.endEdit(p);
             return;
         }
@@ -97,7 +97,7 @@ public abstract class EditorHandler<P extends NexPlugin<P>> extends IListener<P>
         if (!type.getClass().equals(this.type))
             return;
 
-        if (msg.equalsIgnoreCase(JStrings.EXIT)) {
+        if (msg.equalsIgnoreCase(Constants.EXIT)) {
             e.setCancelled(true);
             EditorManager.endEdit(p);
             return;

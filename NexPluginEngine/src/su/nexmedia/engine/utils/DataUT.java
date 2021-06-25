@@ -21,11 +21,11 @@ public class DataUT {
 
     public static final PersistentDataType<byte[], double[]> DOUBLE_ARRAY = new DoubleArray();
     public static final PersistentDataType<byte[], String[]> STRING_ARRAY = new StringArray(Charset.forName("UTF-8"));
-    public static final PersistentDataType<byte[], UUID> UUID = new UUIDDataType();
+    public static final PersistentDataType<byte[], UUID>     UUID         = new UUIDDataType();
 
     @Nullable
     public static <Z> Z getData(@NotNull PersistentDataHolder holder, @NotNull PersistentDataType<?, Z> type,
-            @NotNull NamespacedKey key) {
+        @NotNull NamespacedKey key) {
 
         PersistentDataContainer container = holder.getPersistentDataContainer();
         if (container.has(key, type)) {
@@ -34,8 +34,7 @@ public class DataUT {
         return null;
     }
 
-    public static void setData(@NotNull PersistentDataHolder holder, @NotNull NamespacedKey key,
-            @NotNull Object value) {
+    public static void setData(@NotNull PersistentDataHolder holder, @NotNull NamespacedKey key, @NotNull Object value) {
 
         PersistentDataContainer container = holder.getPersistentDataContainer();
 
@@ -98,16 +97,14 @@ public class DataUT {
 
     public static int getIntData(@NotNull PersistentDataHolder holder, @NotNull NamespacedKey key) {
         Integer o = getData(holder, PersistentDataType.INTEGER, key);
-        if (o == null)
-            return 0;
+        if (o == null) return 0;
 
         return o.intValue();
     }
 
     public static double getDoubleData(@NotNull PersistentDataHolder holder, @NotNull NamespacedKey key) {
         Double o = getData(holder, PersistentDataType.DOUBLE, key);
-        if (o == null)
-            return 0;
+        if (o == null) return 0;
 
         return o.doubleValue();
     }
@@ -121,12 +118,10 @@ public class DataUT {
     // ==================================================== //
 
     @Nullable
-    public static <Z> Z getData(@NotNull ItemStack item, @NotNull PersistentDataType<?, Z> type,
-            @NotNull NamespacedKey key) {
+    public static <Z> Z getData(@NotNull ItemStack item, @NotNull PersistentDataType<?, Z> type, @NotNull NamespacedKey key) {
 
         ItemMeta meta = item.getItemMeta();
-        if (meta == null)
-            return null;
+        if (meta == null) return null;
 
         return getData(meta, type, key);
     }
@@ -134,8 +129,7 @@ public class DataUT {
     public static void setData(@NotNull ItemStack item, @NotNull NamespacedKey key, @NotNull Object value) {
 
         ItemMeta meta = item.getItemMeta();
-        if (meta == null)
-            return;
+        if (meta == null) return;
 
         setData(meta, key, value);
         item.setItemMeta(meta);
@@ -144,8 +138,7 @@ public class DataUT {
     public static void removeData(@NotNull ItemStack item, @NotNull NamespacedKey key) {
 
         ItemMeta meta = item.getItemMeta();
-        if (meta == null)
-            return;
+        if (meta == null) return;
 
         removeData(meta, key);
         item.setItemMeta(meta);
@@ -262,11 +255,9 @@ public class DataUT {
             ArrayList<String> list = new ArrayList<>();
 
             while (buffer.remaining() > 0) {
-                if (buffer.remaining() < 4)
-                    break;
+                if (buffer.remaining() < 4) break;
                 int stringLength = buffer.getInt();
-                if (buffer.remaining() < stringLength)
-                    break;
+                if (buffer.remaining() < stringLength) break;
 
                 byte[] stringBytes = new byte[stringLength];
                 buffer.get(stringBytes);

@@ -18,7 +18,7 @@ import su.nexmedia.engine.NexEngine;
 import su.nexmedia.engine.hooks.external.MythicMobsHK;
 import su.nexmedia.engine.hooks.external.VaultHK;
 import su.nexmedia.engine.hooks.external.WorldGuardHK;
-import su.nexmedia.engine.utils.constants.JStrings;
+import su.nexmedia.engine.utils.Constants;
 
 public class Hooks {
 
@@ -29,6 +29,7 @@ public class Hooks {
     public static final String PLACEHOLDER_API = "PlaceholderAPI";
     public static final String MYTHIC_MOBS = "MythicMobs";
     public static final String WORLD_GUARD = "WorldGuard";
+    public static final String HOLOGRAPHIC_DISPLAYS = "HolographicDisplays";
 
     @NotNull
     public static String getPermGroup(@NotNull Player player) {
@@ -49,7 +50,7 @@ public class Hooks {
         // System.out.println("[1] map to compare: " + map);
 
         Optional<Map.Entry<String, Long>> opt = rankMap.entrySet().stream()
-                .filter(entry -> entry.getKey().equalsIgnoreCase(JStrings.DEFAULT) || groups.contains(entry.getKey()))
+                .filter(entry -> entry.getKey().equalsIgnoreCase(Constants.DEFAULT) || groups.contains(entry.getKey()))
                 .sorted((entry1, entry2) -> {
                     long val1 = entry1.getValue();
                     long val2 = entry2.getValue();
@@ -73,7 +74,7 @@ public class Hooks {
         // System.out.println("[1] map to compare: " + map);
 
         Optional<Map.Entry<String, Integer>> opt = map.entrySet().stream()
-                .filter(entry -> entry.getKey().equalsIgnoreCase(JStrings.DEFAULT) || groups.contains(entry.getKey()))
+                .filter(entry -> entry.getKey().equalsIgnoreCase(Constants.DEFAULT) || groups.contains(entry.getKey()))
                 .sorted((entry1, entry2) -> {
                     int val1 = entry1.getValue();
                     int val2 = entry2.getValue();
@@ -97,7 +98,7 @@ public class Hooks {
         // System.out.println("[1] map to compare: " + map);
 
         Optional<Map.Entry<String, Double>> opt = map.entrySet().stream()
-                .filter(entry -> entry.getKey().equalsIgnoreCase(JStrings.DEFAULT) || groups.contains(entry.getKey()))
+                .filter(entry -> entry.getKey().equalsIgnoreCase(Constants.DEFAULT) || groups.contains(entry.getKey()))
                 .sorted((entry1, entry2) -> {
                     double val1 = entry1.getValue();
                     double val2 = entry2.getValue();

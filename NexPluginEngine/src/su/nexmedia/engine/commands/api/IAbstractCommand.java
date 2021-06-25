@@ -55,7 +55,7 @@ public abstract class IAbstractCommand<P extends NexPlugin<P>> {
     public abstract boolean playersOnly();
 
     @NotNull
-    public List<String> getTab(@NotNull Player player, int i, @NotNull String @NotNull [] args) {
+    public List<@NotNull String> getTab(@NotNull Player player, int i, @NotNull String @NotNull [] args) {
         return Collections.emptyList();
     }
 

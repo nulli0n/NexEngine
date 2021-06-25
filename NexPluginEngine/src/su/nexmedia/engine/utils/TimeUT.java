@@ -77,4 +77,9 @@ public class TimeUT {
     public static LocalDateTime getLocalDateTimeOf(long ms) {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(ms), TimeZone.getDefault().toZoneId());
     }
+    
+    public static long toEpochMillis(@NotNull LocalDateTime dateTime) {
+        Instant instant = dateTime.atZone(TimeZone.getDefault().toZoneId()).toInstant();
+        return instant.toEpochMilli();
+    }
 }

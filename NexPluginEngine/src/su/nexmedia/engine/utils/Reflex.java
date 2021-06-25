@@ -153,9 +153,7 @@ public class Reflex {
             if (superClass == null) {
                 return null;
             }
-            else {
-                return getMethod(superClass, fieldName);
-            }
+            return getMethod(superClass, fieldName);
         }
     }
 

@@ -40,8 +40,7 @@ public class StringUT {
 
     /**
      * Removes multiple color codes that are 'color of color'. Example: '&a&b&cText'
-     * -> '&cText'.
-     * Probably not needed anymore.
+     * -> '&cText'. Probably not needed anymore.
      * 
      * @param str String to fix.
      * @return A string with a proper color codes formatting.
@@ -59,18 +58,16 @@ public class StringUT {
         while (matcher.find()) {
             String group = matcher.group(1);
             matcher.appendReplacement(buffer,
-                    ChatColor.COLOR_CHAR + "x" + ChatColor.COLOR_CHAR + group.charAt(0) + ChatColor.COLOR_CHAR
-                            + group.charAt(1) + ChatColor.COLOR_CHAR + group.charAt(2) + ChatColor.COLOR_CHAR
-                            + group.charAt(3) + ChatColor.COLOR_CHAR + group.charAt(4) + ChatColor.COLOR_CHAR
-                            + group.charAt(5));
+                ChatColor.COLOR_CHAR + "x" + ChatColor.COLOR_CHAR + group.charAt(0) + ChatColor.COLOR_CHAR + group.charAt(1)
+                    + ChatColor.COLOR_CHAR + group.charAt(2) + ChatColor.COLOR_CHAR + group.charAt(3) + ChatColor.COLOR_CHAR
+                    + group.charAt(4) + ChatColor.COLOR_CHAR + group.charAt(5));
         }
         return matcher.appendTail(buffer).toString();
     }
 
     @NotNull
     public static String colorHexRaw(@NotNull String str) {
-        if (Version.CURRENT.isLower(Version.V1_16_R2))
-            return str;
+        if (Version.CURRENT.isLower(Version.V1_16_R3)) return str;
 
         StringBuffer buffer = new StringBuffer(str);
 
@@ -112,13 +109,13 @@ public class StringUT {
 
     @NotNull
     public static List<String> replace(@NotNull List<String> orig, @NotNull String placeholder, boolean keep,
-            String... replacer) {
+        String... replacer) {
         return StringUT.replace(orig, placeholder, keep, Arrays.asList(replacer));
     }
 
     @NotNull
     public static List<String> replace(@NotNull List<String> orig, @NotNull String placeholder, boolean keep,
-            List<String> replacer) {
+        List<String> replacer) {
         List<String> replaced = new ArrayList<>();
         for (String line : orig) {
             if (line.contains(placeholder)) {
@@ -182,8 +179,7 @@ public class StringUT {
 
     @NotNull
     public static String capitalizeFirstLetter(@NotNull String original) {
-        if (original.isEmpty())
-            return original;
+        if (original.isEmpty()) return original;
         return original.substring(0, 1).toUpperCase() + original.substring(1);
     }
 
@@ -289,8 +285,7 @@ public class StringUT {
 
             int orig = max - Character.getNumericValue(letter) + min;
             char get = Character.forDigit(orig, Character.MAX_RADIX);
-            if (upper)
-                get = Character.toUpperCase(get);
+            if (upper) get = Character.toUpperCase(get);
 
             dec[i / 2] = get;
         }
